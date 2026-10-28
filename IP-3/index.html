@@ -1,0 +1,713 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Bus Ticket Booking</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    color: #263238;
+}
+
+header {
+    background: #12345a;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+nav {
+    background: #1769aa;
+    padding: 12px;
+    text-align: center;
+}
+
+nav button {
+    margin: 5px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: white;
+    color: #12345a;
+    font-weight: bold;
+}
+
+.container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 25px auto;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px #00000012;
+}
+
+h2 {
+    color: #1769aa;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 11px;
+    margin: 7px 0 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.action {
+    background: #1769aa;
+    color: white;
+    padding: 11px 17px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cancel {
+    background: #d93030;
+    color: white;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.bus {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.seats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.seats button {
+    padding: 12px;
+    border: none;
+    background: #dce8f5;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.seats button.selected {
+    background: #15945b;
+    color: white;
+}
+
+.seats button.booked {
+    background: #aaa;
+    color: white;
+    cursor: not-allowed;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background: #1769aa;
+    color: white;
+}
+
+.hidden {
+    display: none;
+}
+
+footer {
+    background: #12345a;
+    color: white;
+    text-align: center;
+    padding: 18px;
+    margin-top: 35px;
+}
+
+@media(max-width:600px) {
+    .container {
+        width: 95%;
+    }
+
+    nav button {
+        padding: 8px;
+    }
+
+    table {
+        font-size: 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🚌 Online Bus Ticket Booking</h1>
+    <p>Search, Select, Book and Travel</p>
+</header>
+
+<nav>
+    <button onclick="showPage('home')">Home</button>
+    <button onclick="showPage('register')">Register</button>
+    <button onclick="showPage('login')">Login</button>
+    <button onclick="showPage('bookings')">My Bookings</button>
+    <button onclick="showPage('adminLogin')">Admin</button>
+</nav>
+
+<div class="container">
+
+<!-- HOME PAGE -->
+<section id="home">
+    <div class="card">
+        <h2>Search Buses</h2>
+
+        <label>From</label>
+        <input id="from" placeholder="Enter starting city">
+
+        <label>To</label>
+        <input id="to" placeholder="Enter destination">
+
+        <label>Journey Date</label>
+        <input type="date" id="date">
+
+        <button class="action" onclick="searchBuses()">
+            Search Buses
+        </button>
+    </div>
+
+    <h2>Available Buses</h2>
+    <div id="busList"></div>
+</section>
+
+<!-- REGISTRATION -->
+<section id="register" class="hidden">
+    <div class="card">
+        <h2>User Registration</h2>
+
+        <input id="regName" placeholder="Full Name">
+        <input id="regEmail" type="email" placeholder="Email">
+        <input id="regPassword" type="password" placeholder="Password">
+
+        <button class="action" onclick="registerUser()">Register</button>
+    </div>
+</section>
+
+<!-- LOGIN -->
+<section id="login" class="hidden">
+    <div class="card">
+        <h2>User Login</h2>
+
+        <input id="loginEmail" type="email" placeholder="Email">
+        <input id="loginPassword" type="password" placeholder="Password">
+
+        <button class="action" onclick="loginUser()">Login</button>
+    </div>
+</section>
+
+<!-- BOOKING HISTORY -->
+<section id="bookings" class="hidden">
+    <div class="card">
+        <h2>My Booking History</h2>
+        <div id="bookingHistory"></div>
+    </div>
+</section>
+
+<!-- ADMIN LOGIN -->
+<section id="adminLogin" class="hidden">
+    <div class="card">
+        <h2>Admin Login</h2>
+        <input id="adminUsername" placeholder="Username">
+        <input id="adminPassword" type="password" placeholder="Password">
+
+        <button class="action" onclick="adminLogin()">Login</button>
+    </div>
+</section>
+
+<!-- ADMIN PANEL -->
+<section id="admin" class="hidden">
+    <div class="card">
+        <h2>Admin Dashboard</h2>
+
+        <h3>Add Bus Information</h3>
+        <input id="busName" placeholder="Bus Name">
+        <input id="busFrom" placeholder="Starting City">
+        <input id="busTo" placeholder="Destination">
+        <input id="busType" placeholder="Bus Category">
+        <input id="busPrice" type="number" placeholder="Ticket Price">
+        <input id="busSeats" type="number" placeholder="Number of Seats">
+
+        <button class="action" onclick="addBus()">Add Bus</button>
+
+        <h3>Manage Buses</h3>
+        <div id="adminBusList"></div>
+
+        <h3>Generate Report</h3>
+        <button class="action" onclick="generateReport()">
+            Download Booking Report
+        </button>
+    </div>
+</section>
+
+<!-- SEAT BOOKING -->
+<section id="seatPage" class="hidden">
+    <div class="card">
+        <h2>Select Your Seats</h2>
+        <p id="selectedBusInfo"></p>
+
+        <div id="seatContainer" class="seats"></div>
+        <p id="totalPrice">Total: ₹0</p>
+
+        <h3>Passenger Details</h3>
+        <input id="passengerName" placeholder="Passenger Name">
+        <input id="passengerPhone" placeholder="10-digit Phone Number"
+               maxlength="10">
+
+        <label>Payment Method (Demo)</label>
+        <select id="paymentMethod">
+            <option>UPI - Simulated</option>
+            <option>Card - Simulated</option>
+            <option>Pay at Boarding</option>
+        </select>
+
+        <button class="action" onclick="confirmBooking()">
+            Confirm Booking
+        </button>
+    </div>
+</section>
+
+<!-- COMMENTS -->
+<section class="card">
+    <h2>Comments and Reviews</h2>
+    <input id="commentName" placeholder="Your Name">
+    <textarea id="commentText" placeholder="Write your comment"></textarea>
+    <button class="action" onclick="addComment()">Post Comment</button>
+    <div id="comments"></div>
+</section>
+
+</div>
+
+<footer>
+    <p>Online Bus Ticket Booking System | College Project</p>
+</footer>
+
+<script>
+let buses = JSON.parse(localStorage.getItem("buses")) || [
+    {id:1, name:"Orange Travels", from:"Hyderabad",
+     to:"Vijayawada", type:"Volvo AC", price:800, seats:20},
+
+    {id:2, name:"GreenLine Travels", from:"Chennai",
+     to:"Bengaluru", type:"Sleeper", price:1000, seats:20},
+
+    {id:3, name:"Andhra Express", from:"Ongole",
+     to:"Tirupati", type:"Non-AC", price:450, seats:20}
+];
+
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let bookings = JSON.parse(localStorage.getItem("bookings")) || [];
+let comments = JSON.parse(localStorage.getItem("comments")) || [];
+let currentUser = null;
+let currentBus = null;
+let selectedSeats = [];
+let journeyDate = "";
+
+function saveData() {
+    localStorage.setItem("buses", JSON.stringify(buses));
+    localStorage.setItem("users", JSON.stringify(users));
+    localStorage.setItem("bookings", JSON.stringify(bookings));
+    localStorage.setItem("comments", JSON.stringify(comments));
+}
+
+function showPage(page) {
+    document.querySelectorAll(
+        ".container > section"
+    ).forEach(s => s.classList.add("hidden"));
+
+    if(page === "home" || page === "register" ||
+       page === "login" || page === "bookings" ||
+       page === "adminLogin" || page === "admin" ||
+       page === "seatPage") {
+        document.getElementById(page).classList.remove("hidden");
+    }
+
+    if(page === "bookings") showBookings();
+    if(page === "admin") showAdminBuses();
+    window.scrollTo(0, 0);
+}
+
+function searchBuses() {
+    const from = document.getElementById("from").value.toLowerCase().trim();
+    const to = document.getElementById("to").value.toLowerCase().trim();
+
+    const result = buses.filter(b =>
+        (!from || b.from.toLowerCase().includes(from)) &&
+        (!to || b.to.toLowerCase().includes(to))
+    );
+
+    displayBuses(result);
+}
+
+function displayBuses(list = buses) {
+    const container = document.getElementById("busList");
+    container.innerHTML = "";
+
+    if(list.length === 0) {
+        container.innerHTML = "<p>No buses found.</p>";
+        return;
+    }
+
+    list.forEach(bus => {
+        container.innerHTML += `
+        <div class="card bus">
+            <div>
+                <h3>${bus.name}</h3>
+                <p>${bus.from} → ${bus.to}</p>
+                <p>Category: ${bus.type}</p>
+                <p>Available seats: ${bus.seats}</p>
+                <h3>₹${bus.price}</h3>
+            </div>
+            <button class="action"
+                onclick="startBooking(${bus.id})">
+                Book Ticket
+            </button>
+        </div>`;
+    });
+}
+
+function registerUser() {
+    const name = document.getElementById("regName").value.trim();
+    const email = document.getElementById("regEmail").value.trim().toLowerCase();
+    const password = document.getElementById("regPassword").value;
+
+    if(!name || !email || !password) {
+        alert("Please fill all fields.");
+        return;
+    }
+
+    if(users.some(u => u.email === email)) {
+        alert("Email already registered.");
+        return;
+    }
+
+    users.push({name, email, password});
+    saveData();
+    alert("Registration successful. Please login.");
+    showPage("login");
+}
+
+function loginUser() {
+    const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+    const password = document.getElementById("loginPassword").value;
+
+    const user = users.find(u =>
+        u.email === email && u.password === password
+    );
+
+    if(!user) {
+        alert("Invalid email or password.");
+        return;
+    }
+
+    currentUser = user;
+    alert("Login successful. Welcome " + user.name);
+    showPage("home");
+}
+
+function startBooking(id) {
+    if(!currentUser) {
+        alert("Please register and login first.");
+        showPage("login");
+        return;
+    }
+
+    currentBus = buses.find(b => b.id === id);
+    selectedSeats = [];
+    journeyDate = document.getElementById("date").value;
+
+    if(!journeyDate) {
+        alert("Please select your journey date.");
+        showPage("home");
+        document.getElementById("date").focus();
+        return;
+    }
+
+    document.getElementById("selectedBusInfo").textContent =
+        currentBus.name + " | " + currentBus.from + " to " +
+        currentBus.to + " | ₹" + currentBus.price;
+
+    const container = document.getElementById("seatContainer");
+    container.innerHTML = "";
+
+    for(let i = 1; i <= currentBus.seats; i++) {
+        const seatName = "S" + i;
+        const isBooked = bookings.some(b =>
+            b.busId === id &&
+            b.date === journeyDate &&
+            b.seats.includes(seatName) &&
+            b.status === "Confirmed"
+        );
+
+        const button = document.createElement("button");
+        button.textContent = seatName;
+
+        if(isBooked) {
+            button.classList.add("booked");
+            button.disabled = true;
+        } else {
+            button.onclick = function() {
+                if(selectedSeats.includes(seatName)) {
+                    selectedSeats = selectedSeats.filter(s => s !== seatName);
+                    button.classList.remove("selected");
+                } else {
+                    selectedSeats.push(seatName);
+                    button.classList.add("selected");
+                }
+
+                document.getElementById("totalPrice").textContent =
+                    "Selected: " + selectedSeats.join(", ") +
+                    " | Total: ₹" +
+                    (selectedSeats.length * currentBus.price);
+            };
+        }
+
+        container.appendChild(button);
+    }
+
+    document.getElementById("passengerName").value = currentUser.name;
+    showPage("seatPage");
+}
+
+function confirmBooking() {
+    const name = document.getElementById("passengerName").value.trim();
+    const phone = document.getElementById("passengerPhone").value.trim();
+
+    if(selectedSeats.length === 0) {
+        alert("Please select at least one seat.");
+        return;
+    }
+
+    if(!name || !/^[0-9]{10}$/.test(phone)) {
+        alert("Enter passenger name and a valid 10-digit phone number.");
+        return;
+    }
+
+    const booking = {
+        id: "BUS" + Date.now(),
+        busId: currentBus.id,
+        busName: currentBus.name,
+        from: currentBus.from,
+        to: currentBus.to,
+        date: journeyDate,
+        seats: [...selectedSeats],
+        name: name,
+        email: currentUser.email,
+        phone: phone,
+        payment: document.getElementById("paymentMethod").value,
+        total: selectedSeats.length * currentBus.price,
+        status: "Confirmed"
+    };
+
+    bookings.push(booking);
+    saveData();
+
+    alert("Booking successful!\nBooking ID: " + booking.id +
+          "\nSeats: " + booking.seats.join(", ") +
+          "\nTotal: ₹" + booking.total +
+          "\nDemo booking only. No real payment or email was processed.");
+
+    showPage("bookings");
+}
+
+function showBookings() {
+    const container = document.getElementById("bookingHistory");
+
+    if(!currentUser) {
+        container.innerHTML = "<p>Please login to see your bookings.</p>";
+        return;
+    }
+
+    const mine = bookings.filter(b => b.email === currentUser.email);
+
+    if(mine.length === 0) {
+        container.innerHTML = "<p>No bookings available.</p>";
+        return;
+    }
+
+    container.innerHTML = `
+    <table>
+        <tr>
+            <th>Booking ID</th><th>Bus</th><th>Date</th>
+            <th>Seats</th><th>Total</th><th>Status</th><th>Action</th>
+        </tr>
+        ${mine.map(b => `
+        <tr>
+            <td>${b.id}</td>
+            <td>${b.busName}<br>${b.from} → ${b.to}</td>
+            <td>${b.date}</td>
+            <td>${b.seats.join(", ")}</td>
+            <td>₹${b.total}</td>
+            <td>${b.status}</td>
+            <td>${b.status === "Confirmed" ?
+                `<button class="cancel" onclick="cancelBooking('${b.id}')">Cancel</button>`
+                : "-"}</td>
+        </tr>`).join("")}
+    </table>`;
+}
+
+function cancelBooking(id) {
+    if(!confirm("Are you sure you want to cancel this ticket?")) return;
+
+    const booking = bookings.find(b => b.id === id);
+    if(booking) booking.status = "Cancelled";
+
+    saveData();
+    showBookings();
+    alert("Booking cancelled. Refund is not processed in this demo.");
+}
+
+function adminLogin() {
+    const username = document.getElementById("adminUsername").value;
+    const password = document.getElementById("adminPassword").value;
+
+    if(username === "admin" && password === "admin123") {
+        alert("Admin login successful.");
+        showPage("admin");
+    } else {
+        alert("Invalid admin credentials.");
+    }
+}
+
+function addBus() {
+    const name = document.getElementById("busName").value.trim();
+    const from = document.getElementById("busFrom").value.trim();
+    const to = document.getElementById("busTo").value.trim();
+    const type = document.getElementById("busType").value.trim();
+    const price = Number(document.getElementById("busPrice").value);
+    const seats = Number(document.getElementById("busSeats").value);
+
+    if(!name || !from || !to || !type || price <= 0 ||
+       !Number.isInteger(seats) || seats < 1 || seats > 60) {
+        alert("Please enter valid bus information.");
+        return;
+    }
+
+    if(from.toLowerCase() === to.toLowerCase()) {
+        alert("Starting city and destination must be different.");
+        return;
+    }
+
+    buses.push({
+        id: Date.now(), name, from, to, type, price, seats
+    });
+
+    saveData();
+    showAdminBuses();
+    displayBuses();
+    alert("Bus added successfully.");
+}
+
+function showAdminBuses() {
+    const container = document.getElementById("adminBusList");
+
+    container.innerHTML = buses.map(b => `
+        <div class="card">
+            <b>${b.name}</b>
+            <p>${b.from} → ${b.to}</p>
+            <p>${b.type} | ₹${b.price} | ${b.seats} seats</p>
+            <button class="cancel" onclick="deleteBus(${b.id})">
+                Delete Bus
+            </button>
+        </div>
+    `).join("") || "<p>No buses available.</p>";
+}
+
+function deleteBus(id) {
+    if(!confirm("Delete this bus?")) return;
+
+    buses = buses.filter(b => b.id !== id);
+    saveData();
+    showAdminBuses();
+    displayBuses();
+}
+
+function generateReport() {
+    const rows = [
+        ["Booking ID","Passenger","Email","Bus","From","To",
+         "Date","Seats","Total","Status"],
+        ...bookings.map(b => [
+            b.id,b.name,b.email,b.busName,b.from,b.to,
+            b.date,b.seats.join(" "),b.total,b.status
+        ])
+    ];
+
+    const csv = rows.map(row =>
+        row.map(value =>
+            '"' + String(value).replace(/"/g, '""') + '"'
+        ).join(",")
+    ).join("\n");
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(
+        new Blob([csv], {type:"text/csv"})
+    );
+    link.download = "booking-report.csv";
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+
+function addComment() {
+    const name = document.getElementById("commentName").value.trim();
+    const text = document.getElementById("commentText").value.trim();
+
+    if(!name || !text) {
+        alert("Enter your name and comment.");
+        return;
+    }
+
+    comments.push({name, text});
+    saveData();
+    displayComments();
+
+    document.getElementById("commentText").value = "";
+    alert("Comment added successfully.");
+}
+
+function displayComments() {
+    document.getElementById("comments").innerHTML =
+        comments.map(c =>
+            `<div class="card"><b>${c.name}</b><p>${c.text}</p></div>`
+        ).join("");
+}
+
+displayBuses();
+displayComments();
+</script>
+
+</body>
+</html>
+```

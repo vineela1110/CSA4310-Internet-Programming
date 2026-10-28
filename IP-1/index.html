@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Library Management System</title>
+
+    <!-- Excel Download -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+
+<body>
+
+<h1>Library Management System</h1>
+
+<hr>
+
+<!-- ================= STUDENT REGISTRATION ================= -->
+
+<h2>Student Registration</h2>
+
+<form id="studentForm">
+
+    Student Name:
+    <input type="text" id="studentName" required>
+    <br><br>
+
+    Roll Number:
+    <input type="text" id="rollNumber" required>
+    <br><br>
+
+    Email:
+    <input type="email" id="email" required>
+    <br><br>
+
+    Phone:
+    <input type="text" id="phone" required>
+    <br><br>
+
+    Department:
+    <select id="department" required>
+        <option value="">Select</option>
+        <option>AIML</option>
+        <option>CSE</option>
+        <option>ECE</option>
+        <option>IT</option>
+    </select>
+    <br><br>
+
+    Year:
+    <select id="studentYear" required>
+        <option value="">Select</option>
+        <option>1st Year</option>
+        <option>2nd Year</option>
+        <option>3rd Year</option>
+        <option>4th Year</option>
+    </select>
+    <br><br>
+
+    Gender:
+    <input type="radio" name="gender" value="Male" required> Male
+    <input type="radio" name="gender" value="Female"> Female
+    <input type="radio" name="gender" value="Other"> Other
+
+    <br><br>
+
+    <button type="submit">Register Student</button>
+
+</form>
+
+<h2>Registered Students</h2>
+
+<table border="1">
+
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Roll Number</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Department</th>
+            <th>Year</th>
+            <th>Gender</th>
+        </tr>
+    </thead>
+
+    <tbody id="studentTable"></tbody>
+
+</table>
+
+<br>
+
+<button onclick="downloadStudentsExcel()">
+    Download Student Excel
+</button>
+
+
+<hr>
+
+
+<!-- ================= BOOK ================= -->
+
+<h2>Library Books</h2>
+
+<h3>Add Book</h3>
+
+<form id="bookForm">
+
+    Book Name:
+    <input type="text" id="bookName" required>
+    <br><br>
+
+    Author:
+    <input type="text" id="author" required>
+    <br><br>
+
+    Book ID:
+    <input type="text" id="bookId" required>
+    <br><br>
+
+    Category:
+    <input type="text" id="category" required>
+    <br><br>
+
+    Quantity:
+    <input type="number" id="quantity" min="1" required>
+    <br><br>
+
+    <button type="submit">Add Book</button>
+
+</form>
+
+
+<h3>Available Books</h3>
+
+<table border="1">
+
+    <thead>
+        <tr>
+            <th>Book ID</th>
+            <th>Book Name</th>
+            <th>Author</th>
+            <th>Category</th>
+            <th>Quantity</th>
+        </tr>
+    </thead>
+
+    <tbody id="bookTable"></tbody>
+
+</table>
+
+
+<hr>
+
+
+<!-- ================= SEARCH BOOK ================= -->
+
+<h2>Search Book</h2>
+
+<input type="text" id="searchBook" placeholder="Enter book name">
+
+<button onclick="searchBook()">Search</button>
+
+<button onclick="displayBooks()">Show All</button>
+
+<br><br>
+
+<table border="1">
+
+    <thead>
+        <tr>
+            <th>Book ID</th>
+            <th>Book Name</th>
+            <th>Author</th>
+            <th>Category</th>
+            <th>Quantity</th>
+        </tr>
+    </thead>
+
+    <tbody id="searchTable"></tbody>
+
+</table>
+
+
+<hr>
+
+
+<!-- ================= ISSUE BOOK ================= -->
+
+<h2>Issue Book</h2>
+
+<form id="issueForm">
+
+    Student Roll Number:
+    <input type="text" id="issueRoll" required>
+    <br><br>
+
+    Book ID:
+    <input type="text" id="issueBook" required>
+    <br><br>
+
+    Issue Date:
+    <input type="date" id="issueDate" required>
+    <br><br>
+
+    Expected Return Date:
+    <input type="date" id="expectedDate" required>
+    <br><br>
+
+    <button type="submit">Issue Book</button>
+
+</form>
+
+
+<hr>
+
+
+<!-- ================= BORROW HISTORY ================= -->
+
+<h2>Borrow History</h2>
+
+<table border="1">
+
+    <thead>
+        <tr>
+            <th>Roll Number</th>
+            <th>Book ID</th>
+            <th>Issue Date</th>
+            <th>Expected Return</th>
+            <th>Actual Return</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+
+    <tbody id="historyTable"></tbody>
+
+</table>
+
+
+<hr>
+
+
+<!-- ================= RETURN BOOK ================= -->
+
+<h2>Return Book</h2>
+
+<form id="returnForm">
+
+    Student Roll Number:
+    <input type="text" id="returnRoll" required>
+    <br><br>
+
+    Book ID:
+    <input type="text" id="returnBook" required>
+    <br><br>
+
+    Actual Return Date:
+    <input type="date" id="actualReturnDate" required>
+    <br><br>
+
+    <button type="submit">Return Book</button>
+
+</form>
+
+
+<hr>
+
+
+<!-- ================= FINE ================= -->
+
+<h2>Fine</h2>
+
+<form id="fineForm">
+
+    Student Roll Number:
+    <input type="text" id="fineRoll" required>
+    <br><br>
+
+    Fine Amount:
+    <input type="number" id="fineAmount" min="0" required>
+    <br><br>
+
+    <button type="submit">Add Fine</button>
+
+</form>
+
+<h3>Fine Records</h3>
+
+<table border="1">
+
+    <thead>
+        <tr>
+            <th>Roll Number</th>
+            <th>Fine Amount</th>
+        </tr>
+    </thead>
+
+    <tbody id="fineTable"></tbody>
+
+</table>
+
+
+<hr>
+
+
+<!-- ================= STUDY MATERIAL ================= -->
+
+<h2>Study Material</h2>
+
+Year:
+
+<select id="materialYear">
+
+    <option>1st Year</option>
+    <option>2nd Year</option>
+    <option>3rd Year</option>
+    <option>4th Year</option>
+
+</select>
+
+Semester:
+
+<select id="materialSemester">
+
+    <option>Semester 1</option>
+    <option>Semester 2</option>
+
+</select>
+
+<button onclick="showMaterial()">Search Material</button>
+
+<br><br>
+
+<table border="1">
+
+    <thead>
+        <tr>
+            <th>Year</th>
+            <th>Semester</th>
+            <th>Material</th>
+        </tr>
+    </thead>
+
+    <tbody id="materialTable"></tbody>
+
+</table>
+
+
+<script>
+
+/* ================================================= */
+/* DATA STORAGE */
+/* ================================================= */
+
+let students =
+    JSON.parse(localStorage.getItem("students")) || [];
+
+let books =
+    JSON.parse(localStorage.getItem("books")) || [];
+
+let history =
+    JSON.parse(localStorage.getItem("history")) || [];
+
+let fines =
+    JSON.parse(localStorage.getItem("fines")) || [];
+
+
+/* ================================================= */
+/* STUDENT REGISTRATION */
+/* ================================================= */
+
+document.getElementById("studentForm").addEventListener(
+    "submit",
+    function(event) {
+
+        event.preventDefault();
+
+        let gender =
+            document.querySelector(
+                'input[name="gender"]:checked'
+            ).value;
+
+        let student = {
+
+            name: document.getElementById("studentName").value,
+
+            roll: document.getElementById("rollNumber").value,
+
+            email: document.getElementById("email").value,
+
+            phone: document.getElementById("phone").value,
+
+            department:
+                document.getElementById("department").value,
+
+            year:
+                document.getElementById("studentYear").value,
+
+            gender: gender
+        };
+
+        /* Check duplicate roll number */
+
+        let alreadyExists = students.some(
+            function(s) {
+                return s.roll === student.roll;
+            }
+        );
+
+        if (alreadyExists) {
+
+            alert("Roll number already registered.");
+
+            return;
+        }
+
+        students.push(student);
+
+        localStorage.setItem(
+            "students",
+            JSON.stringify(students)
+        );
+
+        alert("Student registered successfully!");
+
+        document.getElementById("studentForm").reset();
+
+        displayStudents();
+    }
+);
+
+
+/* ================================================= */
+/* DISPLAY STUDENTS */
+/* ================================================= */
+
+function displayStudents() {
+
+    let table =
+        document.getElementById("studentTable");
+
+    table.innerHTML = "";
+
+    students.forEach(function(student) {
+
+        table.innerHTML += `
+
+            <tr>
+
+                <td>${student.name}</td>
+
+                <td>${student.roll}</td>
+
+                <td>${student.email}</td>
+
+                <td>${student.phone}</td>
+
+                <td>${student.department}</td>
+
+                <td>${student.year}</td>
+
+                <td>${student.gender}</td>
+
+            </tr>
+
+        `;
+
+    });
+}
+
+
+/* ================================================= */
+/* EXCEL DOWNLOAD */
+/* ================================================= */
+
+function downloadStudentsExcel() {
+
+    if (students.length === 0) {
+
+        alert("No students available.");
+
+        return;
+    }
+
+    let data = students.map(function(student) {
+
+        return {
+
+            "Student Name": student.name,
+
+            "Roll Number": student.roll,
+
+            "Email": student.email,
+
+            "Phone": student.phone,
+
+            "Department": student.department,
+
+            "Year": student.year,
+
+            "Gender": student.gender
+
+        };
+
+    });
+
+    let worksheet =
+        XLSX.utils.json_to_sheet(data);
+
+    let workbook =
+        XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Students"
+    );
+
+    XLSX.writeFile(
+        workbook,
+        "Library_Students.xlsx"
+    );
+}
+
+
+/* ================================================= */
+/* ADD BOOK */
+/* ================================================= */
+
+document.getElementById("bookForm").addEventListener(
+    "submit",
+    function(event) {
+
+        event.preventDefault();
+
+        let book = {
+
+            id:
+                document.getElementById("bookId").value,
+
+            name:
+                document.getElementById("bookName").value,
+
+            author:
+                document.getElementById("author").value,
+
+            category:
+                document.getElementById("category").value,
+
+            quantity:
+                Number(
+                    document.getElementById("quantity").value
+                )
+        };
+
+        let exists = books.some(
+            function(b) {
+                return b.id === book.id;
+            }
+        );
+
+        if (exists) {
+
+            alert("Book ID already exists.");
+
+            return;
+        }
+
+        books.push(book);
+
+        localStorage.setItem(
+            "books",
+            JSON.stringify(books)
+        );
+
+        alert("Book added successfully!");
+
+        document.getElementById("bookForm").reset();
+
+        displayBooks();
+    }
+);
+
+
+/* ================================================= */
+/* DISPLAY BOOKS */
+/* ================================================= */
+
+function displayBooks() {
+
+    let table =
+        document.getElementById("bookTable");
+
+    let searchTable =
+        document.getElementById("searchTable");
+
+    table.innerHTML = "";
+
+    searchTable.innerHTML = "";
+
+    books.forEach(function(book) {
+
+        let row = `
+
+            <tr>
+
+                <td>${book.id}</td>
+
+                <td>${book.name}</td>
+
+                <td>${book.author}</td>
+
+                <td>${book.category}</td>
+
+                <td>${book.quantity}</td>
+
+            </tr>
+
+        `;
+
+        table.innerHTML += row;
+
+    });
+}
+
+
+/* ================================================= */
+/* SEARCH BOOK */
+/* ================================================= */
+
+function searchBook() {
+
+    let search =
+        document.getElementById("searchBook")
+        .value
+        .toLowerCase();
+
+    let table =
+        document.getElementById("searchTable");
+
+    table.innerHTML = "";
+
+    books.forEach(function(book) {
+
+        if (
+            book.name
+            .toLowerCase()
+            .includes(search)
+        ) {
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>${book.id}</td>
+
+                    <td>${book.name}</td>
+
+                    <td>${book.author}</td>
+
+                    <td>${book.category}</td>
+
+                    <td>${book.quantity}</td>
+
+                </tr>
+
+            `;
+
+        }
+
+    });
+}
+
+
+/* ================================================= */
+/* ISSUE BOOK */
+/* ================================================= */
+
+document.getElementById("issueForm").addEventListener(
+    "submit",
+    function(event) {
+
+        event.preventDefault();
+
+        let roll =
+            document.getElementById("issueRoll").value;
+
+        let bookId =
+            document.getElementById("issueBook").value;
+
+        let studentExists = students.some(
+            function(student) {
+                return student.roll === roll;
+            }
+        );
+
+        if (!studentExists) {
+
+            alert("Student not registered.");
+
+            return;
+        }
+
+        let book =
+            books.find(
+                function(b) {
+                    return b.id === bookId;
+                }
+            );
+
+        if (!book) {
+
+            alert("Book not found.");
+
+            return;
+        }
+
+        if (book.quantity <= 0) {
+
+            alert("Book is not available.");
+
+            return;
+        }
+
+        book.quantity--;
+
+        let record = {
+
+            roll: roll,
+
+            bookId: bookId,
+
+            issueDate:
+                document.getElementById("issueDate").value,
+
+            expectedDate:
+                document.getElementById("expectedDate").value,
+
+            actualReturn: "",
+
+            status: "Issued"
+        };
+
+        history.push(record);
+
+        saveData();
+
+        alert("Book issued successfully!");
+
+        document.getElementById("issueForm").reset();
+
+        displayBooks();
+
+        displayHistory();
+    }
+);
+
+
+/* ================================================= */
+/* DISPLAY HISTORY */
+/* ================================================= */
+
+function displayHistory() {
+
+    let table =
+        document.getElementById("historyTable");
+
+    table.innerHTML = "";
+
+    history.forEach(function(item) {
+
+        table.innerHTML += `
+
+            <tr>
+
+                <td>${item.roll}</td>
+
+                <td>${item.bookId}</td>
+
+                <td>${item.issueDate}</td>
+
+                <td>${item.expectedDate}</td>
+
+                <td>${item.actualReturn}</td>
+
+                <td>${item.status}</td>
+
+            </tr>
+
+        `;
+
+    });
+}
+
+
+/* ================================================= */
+/* RETURN BOOK */
+/* ================================================= */
+
+document.getElementById("returnForm").addEventListener(
+    "submit",
+    function(event) {
+
+        event.preventDefault();
+
+        let roll =
+            document.getElementById("returnRoll").value;
+
+        let bookId =
+            document.getElementById("returnBook").value;
+
+        let record = history.find(
+            function(item) {
+
+                return (
+                    item.roll === roll &&
+                    item.bookId === bookId &&
+                    item.status === "Issued"
+                );
+
+            }
+        );
+
+        if (!record) {
+
+            alert("Issued book record not found.");
+
+            return;
+        }
+
+        record.actualReturn =
+            document.getElementById(
+                "actualReturnDate"
+            ).value;
+
+        record.status = "Returned";
+
+        let book =
+            books.find(
+                function(b) {
+                    return b.id === bookId;
+                }
+            );
+
+        if (book) {
+
+            book.quantity++;
+
+        }
+
+        saveData();
+
+        alert("Book returned successfully!");
+
+        document.getElementById("returnForm").reset();
+
+        displayBooks();
+
+        displayHistory();
+    }
+);
+
+
+/* ================================================= */
+/* FINE */
+/* ================================================= */
+
+document.getElementById("fineForm").addEventListener(
+    "submit",
+    function(event) {
+
+        event.preventDefault();
+
+        let fine = {
+
+            roll:
+                document.getElementById("fineRoll").value,
+
+            amount:
+                document.getElementById("fineAmount").value
+        };
+
+        fines.push(fine);
+
+        localStorage.setItem(
+            "fines",
+            JSON.stringify(fines)
+        );
+
+        alert("Fine added successfully!");
+
+        document.getElementById("fineForm").reset();
+
+        displayFines();
+    }
+);
+
+
+/* ================================================= */
+/* DISPLAY FINES */
+/* ================================================= */
+
+function displayFines() {
+
+    let table =
+        document.getElementById("fineTable");
+
+    table.innerHTML = "";
+
+    fines.forEach(function(fine) {
+
+        table.innerHTML += `
+
+            <tr>
+
+                <td>${fine.roll}</td>
+
+                <td>₹${fine.amount}</td>
+
+            </tr>
+
+        `;
+
+    });
+}
+
+
+/* ================================================= */
+/* STUDY MATERIAL */
+/* ================================================= */
+
+let materials = [
+
+    {
+        year: "1st Year",
+        semester: "Semester 1",
+        name: "Engineering Mathematics"
+    },
+
+    {
+        year: "1st Year",
+        semester: "Semester 2",
+        name: "Engineering Physics"
+    },
+
+    {
+        year: "2nd Year",
+        semester: "Semester 1",
+        name: "Data Structures"
+    },
+
+    {
+        year: "2nd Year",
+        semester: "Semester 2",
+        name: "Database Management System"
+    },
+
+    {
+        year: "3rd Year",
+        semester: "Semester 1",
+        name: "Machine Learning"
+    },
+
+    {
+        year: "3rd Year",
+        semester: "Semester 2",
+        name: "Cloud Computing"
+    },
+
+    {
+        year: "4th Year",
+        semester: "Semester 1",
+        name: "Artificial Intelligence"
+    },
+
+    {
+        year: "4th Year",
+        semester: "Semester 2",
+        name: "Project Management"
+    }
+
+];
+
+
+function showMaterial() {
+
+    let year =
+        document.getElementById("materialYear").value;
+
+    let semester =
+        document.getElementById("materialSemester").value;
+
+    let table =
+        document.getElementById("materialTable");
+
+    table.innerHTML = "";
+
+    materials.forEach(function(material) {
+
+        if (
+            material.year === year &&
+            material.semester === semester
+        ) {
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>${material.year}</td>
+
+                    <td>${material.semester}</td>
+
+                    <td>${material.name}</td>
+
+                </tr>
+
+            `;
+
+        }
+
+    });
+}
+
+
+/* ================================================= */
+/* SAVE ALL DATA */
+/* ================================================= */
+
+function saveData() {
+
+    localStorage.setItem(
+        "students",
+        JSON.stringify(students)
+    );
+
+    localStorage.setItem(
+        "books",
+        JSON.stringify(books)
+    );
+
+    localStorage.setItem(
+        "history",
+        JSON.stringify(history)
+    );
+
+    localStorage.setItem(
+        "fines",
+        JSON.stringify(fines)
+    );
+}
+
+
+/* ================================================= */
+/* LOAD DATA WHEN PAGE OPENS */
+/* ================================================= */
+
+displayStudents();
+
+displayBooks();
+
+displayHistory();
+
+displayFines();
+
+</script>
+
+</body>
+</html>

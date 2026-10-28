@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hotel Room Booking System</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: lightgray;
+            margin: 0;
+        }
+
+        h1 {
+            color: darkblue;
+            text-align: center;
+        }
+
+        h2 {
+            color: green;
+        }
+
+        .section {
+            background-color: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+        }
+
+        input, select {
+            padding: 10px;
+            margin: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: darkblue;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: lightblue;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>HOTEL ROOM BOOKING SYSTEM</h1>
+
+    <!-- CUSTOMER REGISTRATION -->
+
+    <div class="section">
+        <h2>Customer Registration</h2>
+
+        <form id="registrationForm">
+
+            <label>Name:</label>
+            <input type="text" id="name" required>
+
+            <label>Email:</label>
+            <input type="email" id="email" required>
+
+            <label>Phone:</label>
+            <input type="text" id="phone" required>
+
+            <label>Password:</label>
+            <input type="password" id="password" required>
+
+            <button type="submit">Register</button>
+
+        </form>
+
+        <p id="registrationMessage" class="message"></p>
+    </div>
+
+
+    <!-- USER LOGIN -->
+
+    <div class="section">
+
+        <h2>User Login</h2>
+
+        <form id="loginForm">
+
+            <label>Email:</label>
+            <input type="email" id="loginEmail" required>
+
+            <label>Password:</label>
+            <input type="password" id="loginPassword" required>
+
+            <button type="submit">Login</button>
+
+        </form>
+
+        <p id="loginMessage" class="message"></p>
+
+    </div>
+
+
+    <!-- SEARCH ROOM -->
+
+    <div class="section">
+
+        <h2>Search Room</h2>
+
+        <form id="searchForm">
+
+            <label>Check-in Date:</label>
+            <input type="date" id="checkIn" required>
+
+            <label>Check-out Date:</label>
+            <input type="date" id="checkOut" required>
+
+            <label>Room Type:</label>
+
+            <select id="roomType">
+                <option value="Deluxe">Deluxe</option>
+                <option value="Standard">Standard</option>
+                <option value="Suite">Suite</option>
+            </select>
+
+            <button type="submit">Search</button>
+
+        </form>
+
+        <p id="searchMessage" class="message"></p>
+
+    </div>
+
+
+    <!-- AVAILABLE ROOMS -->
+
+    <div class="section">
+
+        <h2>Available Rooms</h2>
+
+        <table>
+
+            <tr>
+                <th>Room No</th>
+                <th>Room Type</th>
+                <th>Price</th>
+                <th>Status</th>
+            </tr>
+
+            <tbody id="roomTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- BOOK ROOM -->
+
+    <div class="section">
+
+        <h2>Book Room</h2>
+
+        <form id="bookingForm">
+
+            <label>Customer Name:</label>
+            <input type="text" id="customerName" required>
+
+            <label>Room No:</label>
+            <input type="text" id="bookingRoomNo" required>
+
+            <label>Check-in Date:</label>
+            <input type="date" id="bookingCheckIn" required>
+
+            <label>Check-out Date:</label>
+            <input type="date" id="bookingCheckOut" required>
+
+            <button type="submit">Book Room</button>
+
+        </form>
+
+        <p id="bookingMessage" class="message"></p>
+
+    </div>
+
+
+    <!-- BOOKING DETAILS -->
+
+    <div class="section">
+
+        <h2>Booking Details</h2>
+
+        <table>
+
+            <tr>
+                <th>Booking ID</th>
+                <th>Customer</th>
+                <th>Room No</th>
+                <th>Room Type</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th>Status</th>
+            </tr>
+
+            <tbody id="bookingTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- ADMIN -->
+
+    <div class="section">
+
+        <h2>Admin</h2>
+
+        <form id="roomForm">
+
+            <label>Room No:</label>
+            <input type="text" id="roomNo" required>
+
+            <label>Room Type:</label>
+
+            <select id="adminRoomType">
+                <option value="Deluxe">Deluxe</option>
+                <option value="Standard">Standard</option>
+                <option value="Suite">Suite</option>
+            </select>
+
+            <label>Price:</label>
+            <input type="number" id="price" required>
+
+            <button type="submit">Add Room</button>
+
+        </form>
+
+        <p id="adminMessage" class="message"></p>
+
+    </div>
+
+
+    <!-- CANCEL BOOKING -->
+
+    <div class="section">
+
+        <h2>Cancel Booking</h2>
+
+        <form id="cancelForm">
+
+            <label>Booking ID:</label>
+            <input type="text" id="cancelBookingId" required>
+
+            <button type="submit">Cancel Booking</button>
+
+        </form>
+
+        <p id="cancelMessage" class="message"></p>
+
+    </div>
+
+
+    <script>
+
+        // Customer data
+        let customers = [];
+
+        // Room data
+        let rooms = [
+            {
+                roomNo: "1",
+                type: "Deluxe",
+                price: 2500,
+                status: "Available"
+            },
+            {
+                roomNo: "2",
+                type: "Standard",
+                price: 1500,
+                status: "Available"
+            },
+            {
+                roomNo: "3",
+                type: "Suite",
+                price: 4000,
+                status: "Available"
+            }
+        ];
+
+        // Booking data
+        let bookings = [];
+
+
+        // CUSTOMER REGISTRATION
+
+        document.getElementById("registrationForm").addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+            let customer = {
+                name: document.getElementById("name").value,
+                email: document.getElementById("email").value,
+                phone: document.getElementById("phone").value,
+                password: document.getElementById("password").value
+            };
+
+            customers.push(customer);
+
+            document.getElementById("registrationMessage").innerHTML =
+                "Registration Successful!";
+
+            this.reset();
+
+        });
+
+
+        // USER LOGIN
+
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+            let email = document.getElementById("loginEmail").value;
+            let password = document.getElementById("loginPassword").value;
+
+            let customer = customers.find(function(c) {
+
+                return c.email === email && c.password === password;
+
+            });
+
+            if (customer) {
+
+                document.getElementById("loginMessage").innerHTML =
+                    "Login Successful! Welcome " + customer.name;
+
+            } else {
+
+                document.getElementById("loginMessage").innerHTML =
+                    "Invalid Login Details!";
+
+            }
+
+        });
+
+
+        // DISPLAY ROOMS
+
+        function displayRooms() {
+
+            let table = document.getElementById("roomTable");
+
+            table.innerHTML = "";
+
+            rooms.forEach(function(room) {
+
+                let row = table.insertRow();
+
+                row.insertCell(0).innerHTML = room.roomNo;
+                row.insertCell(1).innerHTML = room.type;
+                row.insertCell(2).innerHTML = "₹" + room.price;
+                row.insertCell(3).innerHTML = room.status;
+
+            });
+
+        }
+
+        displayRooms();
+
+
+        // SEARCH ROOM
+
+        document.getElementById("searchForm").addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+            let type = document.getElementById("roomType").value;
+
+            let room = rooms.find(function(r) {
+
+                return r.type === type && r.status === "Available";
+
+            });
+
+            if (room) {
+
+                document.getElementById("searchMessage").innerHTML =
+                    "Available Room: Room No " + room.roomNo +
+                    ", " + room.type +
+                    ", Price: ₹" + room.price + " per day";
+
+            } else {
+
+                document.getElementById("searchMessage").innerHTML =
+                    "No Room Available!";
+
+            }
+
+        });
+
+
+        // BOOK ROOM
+
+        document.getElementById("bookingForm").addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+            let roomNo = document.getElementById("bookingRoomNo").value;
+
+            let room = rooms.find(function(r) {
+
+                return r.roomNo === roomNo;
+
+            });
+
+            if (!room) {
+
+                document.getElementById("bookingMessage").innerHTML =
+                    "Room not found!";
+
+                return;
+
+            }
+
+            if (room.status === "Booked") {
+
+                document.getElementById("bookingMessage").innerHTML =
+                    "Room is already booked!";
+
+                return;
+
+            }
+
+            let booking = {
+
+                bookingId: "B" + (bookings.length + 101),
+
+                customer: document.getElementById("customerName").value,
+
+                roomNo: roomNo,
+
+                roomType: room.type,
+
+                checkIn: document.getElementById("bookingCheckIn").value,
+
+                checkOut: document.getElementById("bookingCheckOut").value,
+
+                status: "Booked"
+
+            };
+
+            bookings.push(booking);
+
+            room.status = "Booked";
+
+            displayRooms();
+            displayBookings();
+
+            document.getElementById("bookingMessage").innerHTML =
+                "Room booked successfully!";
+
+            this.reset();
+
+        });
+
+
+        // DISPLAY BOOKINGS
+
+        function displayBookings() {
+
+            let table = document.getElementById("bookingTable");
+
+            table.innerHTML = "";
+
+            bookings.forEach(function(booking) {
+
+                let row = table.insertRow();
+
+                row.insertCell(0).innerHTML = booking.bookingId;
+                row.insertCell(1).innerHTML = booking.customer;
+                row.insertCell(2).innerHTML = booking.roomNo;
+                row.insertCell(3).innerHTML = booking.roomType;
+                row.insertCell(4).innerHTML = booking.checkIn;
+                row.insertCell(5).innerHTML = booking.checkOut;
+                row.insertCell(6).innerHTML = booking.status;
+
+            });
+
+        }
+
+
+        // ADMIN ADD ROOM
+
+        document.getElementById("roomForm").addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+            let room = {
+
+                roomNo: document.getElementById("roomNo").value,
+
+                type: document.getElementById("adminRoomType").value,
+
+                price: document.getElementById("price").value,
+
+                status: "Available"
+
+            };
+
+            rooms.push(room);
+
+            displayRooms();
+
+            document.getElementById("adminMessage").innerHTML =
+                "Room added successfully!";
+
+            this.reset();
+
+        });
+
+
+        // CANCEL BOOKING
+
+        document.getElementById("cancelForm").addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+            let bookingId = document.getElementById("cancelBookingId").value;
+
+            let booking = bookings.find(function(b) {
+
+                return b.bookingId === bookingId;
+
+            });
+
+            if (booking) {
+
+                booking.status = "Cancelled";
+
+                let room = rooms.find(function(r) {
+
+                    return r.roomNo === booking.roomNo;
+
+                });
+
+                if (room) {
+                    room.status = "Available";
+                }
+
+                displayBookings();
+                displayRooms();
+
+                document.getElementById("cancelMessage").innerHTML =
+                    "Booking cancelled successfully!";
+
+            } else {
+
+                document.getElementById("cancelMessage").innerHTML =
+                    "Booking ID not found!";
+
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>
