@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedCare Hospital Appointment Booking</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f0f8ff;
+    color: #333;
+}
+header {
+    background: #087f8c;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+nav {
+    background: #075963;
+    padding: 12px;
+    text-align: center;
+}
+button {
+    background: #087f8c;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button:hover {
+    background: #064e56;
+}
+nav button {
+    background: white;
+    color: #075963;
+}
+.container {
+    width: 90%;
+    max-width: 1100px;
+    margin: 25px auto;
+}
+section {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px #00000010;
+}
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+label {
+    font-weight: bold;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+.card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 10px;
+}
+.hidden {
+    display: none;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+th {
+    background: #d8f0f2;
+}
+.status {
+    color: #087f8c;
+    font-weight: bold;
+}
+@media(max-width:600px) {
+    nav button {
+        width: 90%;
+    }
+    table {
+        font-size: 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🏥 MedCare Hospital</h1>
+    <p>Online Hospital and Doctor Appointment Booking System</p>
+</header>
+
+<nav>
+    <button onclick="showPage('home')">Home</button>
+    <button onclick="showPage('register')">Register</button>
+    <button onclick="showPage('login')">Login</button>
+    <button onclick="showPage('booking')">Book Appointment</button>
+    <button onclick="showPage('myAppointments')">My Appointments</button>
+    <button onclick="showPage('checkin')">Patient Check-in</button>
+    <button onclick="showPage('review')">Reviews</button>
+    <button onclick="showPage('adminLogin')">Admin</button>
+    <button onclick="showPage('hospitalLogin')">Hospital</button>
+</nav>
+
+<div class="container">
+
+<!-- HOME / SEARCH MODULE -->
+<section id="home">
+    <h2>Find Hospitals and Doctors</h2>
+
+    <input id="searchDoctor"
+           placeholder="Search doctor, specialty, or hospital..."
+           oninput="displayDoctors()">
+
+    <input id="searchLocation"
+           placeholder="Enter city or location..."
+           oninput="displayDoctors()">
+
+    <select id="specialtyFilter" onchange="displayDoctors()">
+        <option value="">All Specialties</option>
+        <option>Cardiology</option>
+        <option>Dermatology</option>
+        <option>Orthopedics</option>
+        <option>Pediatrics</option>
+        <option>General Medicine</option>
+        <option>Neurology</option>
+    </select>
+
+    <div id="doctorList" class="grid"></div>
+</section>
+
+<!-- USER REGISTRATION -->
+<section id="register" class="hidden">
+    <h2>Patient Registration</h2>
+
+    <form onsubmit="registerUser(event)">
+        <label>Full Name</label>
+        <input id="regName" required>
+
+        <label>Email</label>
+        <input id="regEmail" type="email" required>
+
+        <label>Password</label>
+        <input id="regPassword" type="password" required>
+
+        <label>Phone Number</label>
+        <input id="regPhone" required>
+
+        <label>Age</label>
+        <input id="regAge" type="number" min="1" max="120" required>
+
+        <button type="submit">Register</button>
+    </form>
+</section>
+
+<!-- USER LOGIN -->
+<section id="login" class="hidden">
+    <h2>Patient Login</h2>
+
+    <form onsubmit="loginUser(event)">
+        <label>Email</label>
+        <input id="loginEmail" type="email" required>
+
+        <label>Password</label>
+        <input id="loginPassword" type="password" required>
+
+        <button type="submit">Login</button>
+    </form>
+</section>
+
+<!-- APPOINTMENT BOOKING -->
+<section id="booking" class="hidden">
+    <h2>Book Doctor Appointment</h2>
+
+    <form onsubmit="bookAppointment(event)">
+        <label>Select Hospital</label>
+        <select id="hospitalSelect" required></select>
+
+        <label>Select Doctor</label>
+        <select id="doctorSelect" required></select>
+
+        <label>Appointment Date</label>
+        <input id="appointmentDate" type="date" required>
+
+        <label>Available Time</label>
+        <select id="appointmentTime" required>
+            <option value="">Select time</option>
+            <option>09:00 AM</option>
+            <option>10:00 AM</option>
+            <option>11:00 AM</option>
+            <option>12:00 PM</option>
+            <option>02:00 PM</option>
+            <option>03:00 PM</option>
+            <option>04:00 PM</option>
+        </select>
+
+        <label>Reason for Appointment</label>
+        <textarea id="reason" required></textarea>
+
+        <button type="submit">Confirm Appointment</button>
+    </form>
+</section>
+
+<!-- PATIENT APPOINTMENTS -->
+<section id="myAppointments" class="hidden">
+    <h2>My Appointments</h2>
+    <div id="appointmentList"></div>
+</section>
+
+<!-- PATIENT CHECK-IN -->
+<section id="checkin" class="hidden">
+    <h2>Patient Check-in Form</h2>
+
+    <form onsubmit="submitCheckin(event)">
+        <label>Appointment ID</label>
+        <input id="checkinId" type="number" required>
+
+        <label>Current Symptoms</label>
+        <textarea id="symptoms" required></textarea>
+
+        <label>Previous Medical History (optional)</label>
+        <textarea id="medicalHistory"></textarea>
+
+        <button type="submit">Submit Check-in</button>
+    </form>
+
+    <h3>Previous Check-in Details</h3>
+    <div id="checkinHistory"></div>
+</section>
+
+<!-- DOCTOR REVIEWS -->
+<section id="review" class="hidden">
+    <h2>Doctor Reviews and Ratings</h2>
+
+    <form onsubmit="submitReview(event)">
+        <label>Select Doctor</label>
+        <select id="reviewDoctor" required></select>
+
+        <label>Rating</label>
+        <select id="rating" required>
+            <option value="">Select rating</option>
+            <option value="5">5 - Excellent</option>
+            <option value="4">4 - Very Good</option>
+            <option value="3">3 - Good</option>
+            <option value="2">2 - Average</option>
+            <option value="1">1 - Poor</option>
+        </select>
+
+        <label>Comments</label>
+        <textarea id="reviewText" required></textarea>
+
+        <button type="submit">Submit Review</button>
+    </form>
+
+    <h3>Patient Feedback</h3>
+    <div id="reviewList"></div>
+</section>
+
+<!-- ADMIN LOGIN -->
+<section id="adminLogin" class="hidden">
+    <h2>Admin Login</h2>
+    <p>Demo username: <b>admin</b></p>
+    <p>Demo password: <b>admin123</b></p>
+
+    <form onsubmit="adminLogin(event)">
+        <input id="adminUsername" placeholder="Username" required>
+        <input id="adminPassword" type="password"
+               placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+</section>
+
+<!-- ADMIN DASHBOARD -->
+<section id="admin" class="hidden">
+    <h2>Admin Dashboard</h2>
+
+    <button onclick="showAdminTab('doctors')">Manage Doctors</button>
+    <button onclick="showAdminTab('appointments')">Manage Appointments</button>
+    <button onclick="showAdminTab('statistics')">Statistics</button>
+    <button onclick="showAdminTab('ratings')">Rating Details</button>
+    <button onclick="showAdminTab('hospitals')">Manage Hospitals</button>
+
+    <div id="doctorsTab">
+        <h3>Add Doctor</h3>
+
+        <form onsubmit="addDoctor(event)">
+            <label>Doctor Name</label>
+            <input id="newDoctorName" required>
+
+            <label>Specialty</label>
+            <select id="newSpecialty">
+                <option>Cardiology</option>
+                <option>Dermatology</option>
+                <option>Orthopedics</option>
+                <option>Pediatrics</option>
+                <option>General Medicine</option>
+                <option>Neurology</option>
+            </select>
+
+            <label>Hospital</label>
+            <input id="newDoctorHospital" required>
+
+            <label>Location</label>
+            <input id="newDoctorLocation" required>
+
+            <label>Consultation Fee (₹)</label>
+            <input id="newDoctorFee" type="number" min="0" required>
+
+            <button type="submit">Add Doctor</button>
+        </form>
+
+        <h3>Doctor List</h3>
+        <div id="adminDoctors" class="grid"></div>
+    </div>
+
+    <div id="appointmentsTab" class="hidden">
+        <h3>Manage Appointments</h3>
+        <div id="adminAppointments"></div>
+    </div>
+
+    <div id="statisticsTab" class="hidden">
+        <h3>Appointment Statistics</h3>
+        <div id="statistics"></div>
+    </div>
+
+    <div id="ratingsTab" class="hidden">
+        <h3>Doctor Rating Details</h3>
+        <div id="adminRatings"></div>
+    </div>
+
+    <div id="hospitalsTab" class="hidden">
+        <h3>Manage Hospitals</h3>
+
+        <form onsubmit="addHospital(event)">
+            <label>Hospital Name</label>
+            <input id="newHospitalName" required>
+
+            <label>Location</label>
+            <input id="newHospitalLocation" required>
+
+            <label>Address</label>
+            <textarea id="newHospitalAddress" required></textarea>
+
+            <label>Google Maps URL (optional)</label>
+            <input id="newHospitalMap" type="url">
+
+            <button type="submit">Add Hospital</button>
+        </form>
+
+        <div id="adminHospitals"></div>
+    </div>
+
+    <button onclick="logout()">Logout</button>
+</section>
+
+<!-- HOSPITAL LOGIN -->
+<section id="hospitalLogin" class="hidden">
+    <h2>Hospital Login</h2>
+    <p>Demo username: <b>hospital</b></p>
+    <p>Demo password: <b>hospital123</b></p>
+
+    <form onsubmit="hospitalLogin(event)">
+        <input id="hospitalUsername" placeholder="Username" required>
+        <input id="hospitalPassword" type="password"
+               placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+</section>
+
+<!-- HOSPITAL DASHBOARD -->
+<section id="hospitalDashboard" class="hidden">
+    <h2>Hospital Dashboard</h2>
+
+    <h3>Register Hospital</h3>
+    <form onsubmit="registerHospital(event)">
+        <label>Hospital Name</label>
+        <input id="hospitalName" required>
+
+        <label>Location</label>
+        <input id="hospitalLocation" required>
+
+        <label>Address</label>
+        <textarea id="hospitalAddress" required></textarea>
+
+        <label>Google Maps URL</label>
+        <input id="hospitalMap" type="url">
+
+        <button type="submit">Register Hospital</button>
+    </form>
+
+    <h3>Hospital Details</h3>
+    <div id="hospitalDetails"></div>
+
+    <h3>Patient Appointments</h3>
+    <div id="hospitalAppointments"></div>
+
+    <button onclick="logout()">Logout</button>
+</section>
+
+</div>
+
+<script>
+let doctors = JSON.parse(localStorage.getItem("mcDoctors")) || [
+    {id:1,name:"Dr. Ravi Kumar",specialty:"Cardiology",
+     hospital:"MedCare Hospital",location:"Chennai",fee:700},
+    {id:2,name:"Dr. Priya Sharma",specialty:"Dermatology",
+     hospital:"City Care Hospital",location:"Chennai",fee:500},
+    {id:3,name:"Dr. Arjun Rao",specialty:"Orthopedics",
+     hospital:"MedCare Hospital",location:"Hyderabad",fee:600},
+    {id:4,name:"Dr. Meena Devi",specialty:"Pediatrics",
+     hospital:"Sunshine Hospital",location:"Vijayawada",fee:400}
+];
+
+let hospitals = JSON.parse(localStorage.getItem("mcHospitals")) || [
+    {
+        id:1,
+        name:"MedCare Hospital",
+        location:"Chennai",
+        address:"Main Road, Chennai",
+        map:"https://www.google.com/maps/search/?api=1&query=Hospital+Chennai"
+    },
+    {
+        id:2,
+        name:"City Care Hospital",
+        location:"Chennai",
+        address:"City Centre, Chennai",
+        map:"https://www.google.com/maps/search/?api=1&query=Hospital+Chennai"
+    },
+    {
+        id:3,
+        name:"Sunshine Hospital",
+        location:"Vijayawada",
+        address:"Central Area, Vijayawada",
+        map:"https://www.google.com/maps/search/?api=1&query=Hospital+Vijayawada"
+    }
+];
+
+let users = JSON.parse(localStorage.getItem("mcUsers")) || [];
+let appointments = JSON.parse(localStorage.getItem("mcAppointments")) || [];
+let checkins = JSON.parse(localStorage.getItem("mcCheckins")) || [];
+let reviews = JSON.parse(localStorage.getItem("mcReviews")) || [];
+let currentUser = JSON.parse(localStorage.getItem("mcCurrentUser")) || null;
+let isAdmin = false;
+let isHospital = false;
+
+function saveData() {
+    localStorage.setItem("mcDoctors", JSON.stringify(doctors));
+    localStorage.setItem("mcHospitals", JSON.stringify(hospitals));
+    localStorage.setItem("mcUsers", JSON.stringify(users));
+    localStorage.setItem("mcAppointments", JSON.stringify(appointments));
+    localStorage.setItem("mcCheckins", JSON.stringify(checkins));
+    localStorage.setItem("mcReviews", JSON.stringify(reviews));
+    localStorage.setItem("mcCurrentUser", JSON.stringify(currentUser));
+}
+
+function showPage(page) {
+    document.querySelectorAll(".container > section")
+        .forEach(s => s.classList.add("hidden"));
+
+    if (page === "admin" && !isAdmin) page = "adminLogin";
+    if (page === "hospitalDashboard" && !isHospital) page = "hospitalLogin";
+
+    document.getElementById(page).classList.remove("hidden");
+
+    if (page === "home") displayDoctors();
+    if (page === "booking") populateBookingOptions();
+    if (page === "myAppointments") displayPatientAppointments();
+    if (page === "checkin") displayCheckinHistory();
+    if (page === "review") displayReviews();
+    if (page === "admin") displayAdmin();
+    if (page === "hospitalDashboard") displayHospitalDashboard();
+}
+
+function displayDoctors() {
+    let query = document.getElementById("searchDoctor").value.toLowerCase();
+    let location = document.getElementById("searchLocation").value.toLowerCase();
+    let specialty = document.getElementById("specialtyFilter").value;
+
+    let filtered = doctors.filter(d =>
+        (d.name + " " + d.specialty + " " + d.hospital)
+            .toLowerCase().includes(query) &&
+        d.location.toLowerCase().includes(location) &&
+        (!specialty || d.specialty === specialty)
+    );
+
+    document.getElementById("doctorList").innerHTML =
+        filtered.map(d => {
+            let matchingReviews = reviews.filter(r => r.doctorId === d.id);
+            let avg = matchingReviews.length
+                ? (matchingReviews.reduce((s, r) => s + Number(r.rating), 0)
+                    / matchingReviews.length).toFixed(1)
+                : "No ratings";
+
+            let hospital = hospitals.find(h => h.name === d.hospital);
+            let mapURL = hospital ? hospital.map :
+                "https://www.google.com/maps/search/?api=1&query=" +
+                encodeURIComponent(d.hospital + " " + d.location);
+
+            return `
+            <div class="card">
+                <h3>${escapeHTML(d.name)}</h3>
+                <p>Specialty: ${escapeHTML(d.specialty)}</p>
+                <p>Hospital: ${escapeHTML(d.hospital)}</p>
+                <p>Location: ${escapeHTML(d.location)}</p>
+                <p>Consultation Fee: ₹${d.fee}</p>
+                <p>Rating: ${avg}</p>
+                <a href="${escapeHTML(mapURL)}" target="_blank" rel="noopener">
+                    View Hospital on Google Maps
+                </a><br>
+                <button onclick="selectDoctor(${d.id})">Book Appointment</button>
+            </div>`;
+        }).join("") || "<p>No doctors found. Try another search.</p>";
+}
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+}
+
+function selectDoctor(id) {
+    if (!currentUser) {
+        alert("Please register or login first.");
+        showPage("login");
+        return;
+    }
+
+    showPage("booking");
+    document.getElementById("doctorSelect").value = id;
+
+    let doctor = doctors.find(d => d.id === id);
+    if (doctor) {
+        document.getElementById("hospitalSelect").value = doctor.hospital;
+    }
+}
+
+function populateBookingOptions() {
+    document.getElementById("hospitalSelect").innerHTML =
+        hospitals.map(h =>
+            `<option value="${escapeHTML(h.name)}">${escapeHTML(h.name)} - ${escapeHTML(h.location)}</option>`
+        ).join("");
+
+    document.getElementById("doctorSelect").innerHTML =
+        doctors.map(d =>
+            `<option value="${d.id}">${escapeHTML(d.name)} - ${escapeHTML(d.specialty)}</option>`
+        ).join("");
+}
+
+function registerUser(event) {
+    event.preventDefault();
+
+    let email = document.getElementById("regEmail").value.toLowerCase();
+
+    if (users.some(u => u.email === email)) {
+        alert("Email already registered.");
+        return;
+    }
+
+    currentUser = {
+        name: document.getElementById("regName").value,
+        email: email,
+        password: document.getElementById("regPassword").value,
+        phone: document.getElementById("regPhone").value,
+        age: document.getElementById("regAge").value
+    };
+
+    users.push(currentUser);
+    saveData();
+
+    alert("Registration successful!");
+    showPage("home");
+}
+
+function loginUser(event) {
+    event.preventDefault();
+
+    let email = document.getElementById("loginEmail").value.toLowerCase();
+    let password = document.getElementById("loginPassword").value;
+
+    let user = users.find(u => u.email === email && u.password === password);
+
+    if (!user) {
+        alert("Invalid email or password.");
+        return;
+    }
+
+    currentUser = user;
+    saveData();
+
+    alert("Login successful!");
+    showPage("home");
+}
+
+function bookAppointment(event) {
+    event.preventDefault();
+
+    if (!currentUser) {
+        alert("Please login first.");
+        showPage("login");
+        return;
+    }
+
+    let doctorId = Number(document.getElementById("doctorSelect").value);
+    let doctor = doctors.find(d => d.id === doctorId);
+    let hospital = document.getElementById("hospitalSelect").value;
+    let date = document.getElementById("appointmentDate").value;
+    let time = document.getElementById("appointmentTime").value;
+
+    if (!doctor) {
+        alert("Please select a doctor.");
+        return;
+    }
+
+    if (doctor.hospital !== hospital) {
+        alert("Please select the hospital associated with this doctor.");
+        return;
+    }
+
+    let selectedDate = new Date(date + "T00:00:00");
+    let today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (!date || selectedDate < today) {
+        alert("Select today or a future date.");
+        return;
+    }
+
+    let unavailable = appointments.some(a =>
+        a.doctorId === doctorId &&
+        a.date === date &&
+        a.time === time &&
+        a.status !== "Cancelled"
+    );
+
+    if (unavailable) {
+        alert("This appointment slot is already booked.");
+        return;
+    }
+
+    let appointment = {
+        id: Date.now(),
+        userEmail: currentUser.email,
+        patient: currentUser.name,
+        phone: currentUser.phone,
+        doctorId: doctor.id,
+        doctor: doctor.name,
+        specialty: doctor.specialty,
+        hospital: hospital,
+        location: doctor.location,
+        date: date,
+        time: time,
+        reason: document.getElementById("reason").value,
+        fee: doctor.fee,
+        status: "Confirmed",
+        created: new Date().toLocaleString()
+    };
+
+    appointments.push(appointment);
+    saveData();
+
+    alert("Appointment booked successfully! ID: " + appointment.id);
+    showPage("myAppointments");
+}
+
+function displayPatientAppointments() {
+    if (!currentUser) {
+        document.getElementById("appointmentList").innerHTML =
+            "<p>Please login to view appointments.</p>";
+        return;
+    }
+
+    let mine = appointments.filter(a => a.userEmail === currentUser.email);
+
+    document.getElementById("appointmentList").innerHTML =
+        mine.length ? mine.map(a => `
+        <div class="card">
+            <h3>${escapeHTML(a.doctor)}</h3>
+            <p>Appointment ID: ${a.id}</p>
+            <p>Specialty: ${escapeHTML(a.specialty)}</p>
+            <p>Hospital: ${escapeHTML(a.hospital)}</p>
+            <p>Date: ${a.date} | Time: ${escapeHTML(a.time)}</p>
+            <p>Reason: ${escapeHTML(a.reason)}</p>
+            <p>Consultation Fee: ₹${a.fee}</p>
+            <p class="status">Status: ${escapeHTML(a.status)}</p>
+            ${a.status !== "Cancelled" && a.status !== "Completed" ?
+                `<button onclick="cancelAppointment(${a.id})">Cancel Appointment</button>
+                 <button onclick="rescheduleAppointment(${a.id})">Reschedule</button>
+                 <button onclick="showCheckinForm(${a.id})">Check-in</button>` : ""}
+        </div>
+        `).join("") : "<p>No appointments found.</p>";
+}
+
+function cancelAppointment(id) {
+    let a = appointments.find(x => x.id === id);
+
+    if (!a || a.userEmail !== currentUser?.email) return;
+    if (!confirm("Cancel this appointment?")) return;
+
+    a.status = "Cancelled";
+    saveData();
+    displayPatientAppointments();
+    alert("Appointment cancelled.");
+}
+
+function rescheduleAppointment(id) {
+    let a = appointments.find(x => x.id === id);
+
+    if (!a || a.userEmail !== currentUser?.email) return;
+
+    let date = prompt("Enter new date (YYYY-MM-DD):", a.date);
+    if (!date) return;
+
+    let time = prompt("Enter new time (e.g. 10:00 AM):", a.time);
+    if (!time) return;
+
+    let newDate = new Date(date + "T00:00:00");
+    let today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let occupied = appointments.some(x =>
+        x.id !== id && x.doctorId === a.doctorId &&
+        x.date === date && x.time === time &&
+        x.status !== "Cancelled"
+    );
+
+    if (newDate < today || occupied) {
+        alert("Invalid date or appointment slot unavailable.");
+        return;
+    }
+
+    a.date = date;
+    a.time = time;
+    a.status = "Rescheduled";
+
+    saveData();
+    displayPatientAppointments();
+    alert("Appointment rescheduled successfully.");
+}
+
+function showCheckinForm(id) {
+    showPage("checkin");
+    document.getElementById("checkinId").value = id;
+}
+
+function submitCheckin(event) {
+    event.preventDefault();
+
+    if (!currentUser) {
+        alert("Please login first.");
+        showPage("login");
+        return;
+    }
+
+    let id = Number(document.getElementById("checkinId").value);
+    let a = appointments.find(x =>
+        x.id === id && x.userEmail === currentUser.email &&
+        x.status !== "Cancelled"
+    );
+
+    if (!a) {
+        alert("Appointment not found.");
+        return;
+    }
+
+    checkins.push({
+        appointmentId: id,
+        userEmail: currentUser.email,
+        patient: currentUser.name,
+        symptoms: document.getElementById("symptoms").value,
+        history: document.getElementById("medicalHistory").value,
+        date: new Date().toLocaleString()
+    });
+
+    saveData();
+    event.target.reset();
+
+    alert("Check-in details submitted successfully.");
+    displayCheckinHistory();
+}
+
+function displayCheckinHistory() {
+    if (!currentUser) {
+        document.getElementById("checkinHistory").innerHTML =
+            "<p>Please login to view check-in history.</p>";
+        return;
+    }
+
+    let mine = checkins.filter(c => c.userEmail === currentUser.email);
+
+    document.getElementById("checkinHistory").innerHTML =
+        mine.map(c => `
+        <div class="card">
+            <p>Appointment ID: ${c.appointmentId}</p>
+            <p>Date: ${escapeHTML(c.date)}</p>
+            <p>Symptoms: ${escapeHTML(c.symptoms)}</p>
+            <p>Medical History: ${escapeHTML(c.history || "Not provided")}</p>
+        </div>
+        `).join("") || "<p>No previous check-ins.</p>";
+}
+
+function submitReview(event) {
+    event.preventDefault();
+
+    if (!currentUser) {
+        alert("Please login before submitting a review.");
+        showPage("login");
+        return;
+    }
+
+    let doctorId = Number(document.getElementById("reviewDoctor").value);
+    let doctor = doctors.find(d => d.id === doctorId);
+
+    if (!doctor) {
+        alert("Select a doctor.");
+        return;
+    }
+
+    reviews.push({
+        userEmail: currentUser.email,
+        patient: currentUser.name,
+        doctorId: doctor.id,
+        doctor: doctor.name,
+        rating: Number(document.getElementById("rating").value),
+        comment: document.getElementById("reviewText").value
+    });
+
+    saveData();
+    event.target.reset();
+
+    alert("Review submitted successfully.");
+    displayReviews();
+}
+
+function displayReviews() {
+    document.getElementById("reviewDoctor").innerHTML =
+        doctors.map(d =>
+            `<option value="${d.id}">${escapeHTML(d.name)}</option>`
+        ).join("");
+
+    document.getElementById("reviewList").innerHTML =
+        reviews.map(r => `
+        <div class="card">
+            <h3>${escapeHTML(r.doctor)}</h3>
+            <p>Patient: ${escapeHTML(r.patient)}</p>
+            <p>Rating: ${r.rating}/5</p>
+            <p>${escapeHTML(r.comment)}</p>
+        </div>
+        `).join("") || "<p>No reviews yet.</p>";
+}
+
+function adminLogin(event) {
+    event.preventDefault();
+
+    let username = document.getElementById("adminUsername").value;
+    let password = document.getElementById("adminPassword").value;
+
+    if (username === "admin" && password === "admin123") {
+        isAdmin = true;
+        alert("Admin login successful.");
+        showPage("admin");
+    } else {
+        alert("Invalid admin username or password.");
+    }
+}
+
+function showAdminTab(tab) {
+    ["doctors", "appointments", "statistics", "ratings", "hospitals"]
+        .forEach(t => {
+            document.getElementById(t + "Tab").classList.toggle("hidden", t !== tab);
+        });
+
+    displayAdmin();
+}
+
+function addDoctor(event) {
+    event.preventDefault();
+
+    if (!isAdmin) return;
+
+    doctors.push({
+        id: Date.now(),
+        name: document.getElementById("newDoctorName").value,
+        specialty: document.getElementById("newSpecialty").value,
+        hospital: document.getElementById("newDoctorHospital").value,
+        location: document.getElementById("newDoctorLocation").value,
+        fee: Number(document.getElementById("newDoctorFee").value)
+    });
+
+    saveData();
+    event.target.reset();
+    displayAdmin();
+    displayDoctors();
+    alert("Doctor added successfully.");
+}
+
+function deleteDoctor(id) {
+    if (!confirm("Delete this doctor?")) return;
+
+    doctors = doctors.filter(d => d.id !== id);
+    saveData();
+    displayAdmin();
+    displayDoctors();
+}
+
+function addHospital(event) {
+    event.preventDefault();
+
+    if (!isAdmin) return;
+
+    hospitals.push({
+        id: Date.now(),
+        name: document.getElementById("newHospitalName").value,
+        location: document.getElementById("newHospitalLocation").value,
+        address: document.getElementById("newHospitalAddress").value,
+        map: document.getElementById("newHospitalMap").value ||
+            "https://www.google.com/maps/search/?api=1&query=" +
+            encodeURIComponent(document.getElementById("newHospitalName").value)
+    });
+
+    saveData();
+    event.target.reset();
+    displayAdmin();
+    alert("Hospital added successfully.");
+}
+
+function registerHospital(event) {
+    event.preventDefault();
+
+    let name = document.getElementById("hospitalName").value.trim();
+
+    hospitals.push({
+        id: Date.now(),
+        name: name,
+        location: document.getElementById("hospitalLocation").value,
+        address: document.getElementById("hospitalAddress").value,
+        map: document.getElementById("hospitalMap").value ||
+            "https://www.google.com/maps/search/?api=1&query=" +
+            encodeURIComponent(name)
+    });
+
+    saveData();
+    event.target.reset();
+    displayHospitalDashboard();
+    alert("Hospital details registered successfully.");
+}
+
+function hospitalLogin(event) {
+    event.preventDefault();
+
+    let username = document.getElementById("hospitalUsername").value;
+    let password = document.getElementById("hospitalPassword").value;
+
+    if (username === "hospital" && password === "hospital123") {
+        isHospital = true;
+        alert("Hospital login successful.");
+        showPage("hospitalDashboard");
+    } else {
+        alert("Invalid hospital username or password.");
+    }
+}
+
+function displayHospitalDashboard() {
+    document.getElementById("hospitalDetails").innerHTML =
+        hospitals.map(h => `
+        <div class="card">
+            <h3>${escapeHTML(h.name)}</h3>
+            <p>Location: ${escapeHTML(h.location)}</p>
+            <p>Address: ${escapeHTML(h.address)}</p>
+            <a href="${escapeHTML(h.map)}" target="_blank" rel="noopener">
+                View on Google Maps
+            </a>
+        </div>
+        `).join("");
+
+    document.getElementById("hospitalAppointments").innerHTML =
+        appointments.length ? appointments.map(a => `
+        <div class="card">
+            <p>Patient: ${escapeHTML(a.patient)}</p>
+            <p>Doctor: ${escapeHTML(a.doctor)}</p>
+            <p>Hospital: ${escapeHTML(a.hospital)}</p>
+            <p>Date: ${a.date} | ${escapeHTML(a.time)}</p>
+            <p>Status: ${escapeHTML(a.status)}</p>
+        </div>
+        `).join("") : "<p>No appointments available.</p>";
+}
+
+function displayAdmin() {
+    if (!isAdmin) return;
+
+    document.getElementById("adminDoctors").innerHTML =
+        doctors.map(d => `
+        <div class="card">
+            <h3>${escapeHTML(d.name)}</h3>
+            <p>${escapeHTML(d.specialty)}</p>
+            <p>${escapeHTML(d.hospital)} - ${escapeHTML(d.location)}</p>
+            <p>Fee: ₹${d.fee}</p>
+            <button onclick="deleteDoctor(${d.id})">Delete Doctor</button>
+        </div>
+        `).join("");
+
+    document.getElementById("adminAppointments").innerHTML =
+        appointments.length ? `<table>
+        <tr><th>Patient</th><th>Doctor / Hospital</th><th>Date / Time</th><th>Status</th><th>Update</th></tr>
+        ${appointments.map(a => `
+        <tr>
+            <td>${escapeHTML(a.patient)}<br>${escapeHTML(a.phone)}</td>
+            <td>${escapeHTML(a.doctor)}<br>${escapeHTML(a.hospital)}</td>
+            <td>${a.date}<br>${escapeHTML(a.time)}</td>
+            <td>${escapeHTML(a.status)}</td>
+            <td><select onchange="updateStatus(${a.id}, this.value)">
+                ${["Confirmed","Completed","Cancelled"].map(s =>
+                    `<option ${a.status === s ? "selected" : ""}>${s}</option>`
+                ).join("")}
+            </select></td>
+        </tr>
+        `).join("")}</table>` : "<p>No appointments.</p>";
+
+    document.getElementById("statistics").innerHTML = `
+        <p>Total Doctors: ${doctors.length}</p>
+        <p>Total Hospitals: ${hospitals.length}</p>
+        <p>Total Registered Patients: ${users.length}</p>
+        <p>Total Appointments: ${appointments.length}</p>
+        <p>Confirmed Appointments: ${appointments.filter(a => a.status === "Confirmed").length}</p>
+        <p>Cancelled Appointments: ${appointments.filter(a => a.status === "Cancelled").length}</p>
+        <p>Completed Appointments: ${appointments.filter(a => a.status === "Completed").length}</p>
+        <p>Total Reviews: ${reviews.length}</p>
+    `;
+
+    document.getElementById("adminRatings").innerHTML =
+        doctors.map(d => {
+            let rs = reviews.filter(r => r.doctorId === d.id);
+            let avg = rs.length
+                ? (rs.reduce((s, r) => s + r.rating, 0) / rs.length).toFixed(1)
+                : "No ratings";
+
+            return `<div class="card">
+                <h3>${escapeHTML(d.name)}</h3>
+                <p>Average Rating: ${avg}</p>
+                <p>Number of Reviews: ${rs.length}</p>
+            </div>`;
+        }).join("");
+
+    document.getElementById("adminHospitals").innerHTML =
+        hospitals.map(h => `
+        <div class="card">
+            <h3>${escapeHTML(h.name)}</h3>
+            <p>${escapeHTML(h.location)}</p>
+            <p>${escapeHTML(h.address)}</p>
+            <a href="${escapeHTML(h.map)}" target="_blank" rel="noopener">
+                View Location
+            </a>
+        </div>
+        `).join("");
+}
+
+function updateStatus(id, status) {
+    let appointment = appointments.find(a => a.id === id);
+
+    if (appointment) {
+        appointment.status = status;
+        saveData();
+        displayAdmin();
+        displayPatientAppointments();
+    }
+}
+
+function logout() {
+    currentUser = null;
+    isAdmin = false;
+    isHospital = false;
+    saveData();
+
+    alert("Logged out successfully.");
+    showPage("home");
+}
+
+document.getElementById("appointmentDate").min =
+    new Date().toISOString().split("T")[0];
+
+displayDoctors();
+</script>
+
+</body>
+</html>

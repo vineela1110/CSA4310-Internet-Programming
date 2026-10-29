@@ -1,0 +1,844 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InsureEasy - Insurance Management</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    color: #263238;
+}
+
+header {
+    background: #123b64;
+    color: white;
+    padding: 22px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+nav {
+    background: #0b2947;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+}
+
+button {
+    background: #167d9a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 14px;
+    margin: 3px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #10566b;
+}
+
+nav button {
+    background: white;
+    color: #123b64;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.card, .item {
+    background: white;
+    padding: 16px;
+    border-radius: 9px;
+    box-shadow: 0 2px 7px #d8e0e8;
+    margin-bottom: 12px;
+}
+
+.card h3 {
+    color: #123b64;
+}
+
+section {
+    margin-bottom: 25px;
+}
+
+.hidden {
+    display: none;
+}
+
+#message {
+    color: #087d57;
+    font-weight: bold;
+}
+
+footer {
+    background: #0b2947;
+    color: white;
+    text-align: center;
+    padding: 15px;
+}
+
+@media(max-width: 600px) {
+    .container {
+        padding: 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>InsureEasy</h1>
+    <p>Simple, Smart and Secure Insurance Management</p>
+</header>
+
+<nav>
+    <button onclick="showPage('home')">Home</button>
+    <button onclick="showPage('account')">User Login</button>
+    <button onclick="showPage('agent')">Agent</button>
+    <button onclick="showPage('admin')">Admin</button>
+    <button onclick="showPage('dashboard')">My Dashboard</button>
+    <button onclick="logout()">Logout</button>
+</nav>
+
+<div class="container">
+
+<p id="message"></p>
+
+<!-- HOME -->
+<section id="home">
+    <h2>Insurance Policies</h2>
+    <p>Compare policies and explore insurance options.</p>
+    <div id="policyList" class="cards"></div>
+</section>
+
+<!-- USER LOGIN -->
+<section id="account" class="hidden">
+    <h2>User Registration / Login</h2>
+    <input id="userName" placeholder="Enter your name">
+    <input id="userEmail" type="email" placeholder="Enter your email">
+    <input id="userPassword" type="password" placeholder="Enter password">
+    <button onclick="userLogin()">Register / Login</button>
+    <p id="userInfo"></p>
+</section>
+
+<!-- USER DASHBOARD -->
+<section id="dashboard" class="hidden">
+    <h2>My Insurance Dashboard</h2>
+
+    <h3>My Policies</h3>
+    <div id="myPolicies"></div>
+
+    <h3>Premium Payment</h3>
+    <div id="paymentPolicies"></div>
+
+    <h3>File an Insurance Claim</h3>
+    <select id="claimPolicy"></select>
+    <textarea id="claimDescription" placeholder="Describe your claim"></textarea>
+    <button onclick="fileClaim()">Submit Claim</button>
+
+    <h3>My Claims</h3>
+    <div id="myClaims"></div>
+
+    <h3>Renewal and Due-Date Alerts</h3>
+    <div id="myAlerts"></div>
+</section>
+
+<!-- AGENT -->
+<section id="agent" class="hidden">
+    <h2>Agent Registration / Login</h2>
+    <input id="agentName" placeholder="Agent name">
+    <input id="agentEmail" type="email" placeholder="Agent email">
+    <input id="agentPassword" type="password" placeholder="Password">
+    <button onclick="registerAgent()">Register Agent</button>
+    <button onclick="loginAgent()">Agent Login</button>
+
+    <div id="agentPanel" class="hidden">
+        <h3>Create Customer</h3>
+        <input id="customerName" placeholder="Customer name">
+        <input id="customerEmail" type="email" placeholder="Customer email">
+        <button onclick="createCustomer()">Add Customer</button>
+
+        <h3>Manage Customer Details</h3>
+        <div id="agentCustomers"></div>
+
+        <h3>Manage Policies</h3>
+        <input id="policyCustomerEmail" type="email"
+               placeholder="Customer email">
+        <select id="agentPolicyType">
+            <option>Health Insurance</option>
+            <option>Auto Insurance</option>
+            <option>Home Insurance</option>
+        </select>
+        <input id="policyPremium" type="number" min="1"
+               placeholder="Premium amount">
+        <input id="policyDueDate" type="date">
+        <button onclick="createPolicy()">Create Customer Policy</button>
+
+        <h3>Policy Details</h3>
+        <div id="agentPolicies"></div>
+
+        <h3>Send Renewal Alert</h3>
+        <button onclick="sendAlerts()">Generate Due-Date Alerts</button>
+        <div id="agentAlerts"></div>
+    </div>
+</section>
+
+<!-- ADMIN -->
+<section id="admin" class="hidden">
+    <h2>Administrator Login</h2>
+    <p>Demo username: admin | Password: admin123</p>
+    <input id="adminName" placeholder="Admin username">
+    <input id="adminPassword" type="password" placeholder="Password">
+    <button onclick="adminLogin()">Admin Login</button>
+
+    <div id="adminPanel" class="hidden">
+        <h3>Approve Agent Accounts</h3>
+        <div id="agentApprovalList"></div>
+
+        <h3>All Agent Details</h3>
+        <div id="allAgents"></div>
+
+        <h3>All Customer Details</h3>
+        <div id="allCustomers"></div>
+
+        <h3>All Insurance Policies</h3>
+        <div id="allPolicies"></div>
+
+        <h3>All Claims</h3>
+        <div id="allClaims"></div>
+
+        <h3>Commission Summary</h3>
+        <div id="commissionSummary"></div>
+    </div>
+</section>
+
+</div>
+
+<footer>
+    <p>© 2026 InsureEasy Insurance Management System</p>
+</footer>
+
+<script>
+let policies = JSON.parse(localStorage.getItem("iePolicies")) || [
+    {
+        id: 1,
+        name: "Health Insurance",
+        description: "Health coverage for eligible medical expenses.",
+        premium: 5000,
+        coverage: 500000
+    },
+    {
+        id: 2,
+        name: "Auto Insurance",
+        description: "Insurance coverage for eligible vehicle-related risks.",
+        premium: 3500,
+        coverage: 300000
+    },
+    {
+        id: 3,
+        name: "Home Insurance",
+        description: "Protection for eligible home and property risks.",
+        premium: 2500,
+        coverage: 1000000
+    }
+];
+
+let agents = JSON.parse(localStorage.getItem("ieAgents")) || [];
+let customers = JSON.parse(localStorage.getItem("ieCustomers")) || [];
+let customerPolicies = JSON.parse(localStorage.getItem("ieCustomerPolicies")) || [];
+let claims = JSON.parse(localStorage.getItem("ieClaims")) || [];
+let alerts = JSON.parse(localStorage.getItem("ieAlerts")) || [];
+
+let currentUser = JSON.parse(sessionStorage.getItem("ieUser")) || null;
+let currentAgent = JSON.parse(sessionStorage.getItem("ieAgent")) || null;
+let isAdmin = false;
+
+function saveData() {
+    localStorage.setItem("iePolicies", JSON.stringify(policies));
+    localStorage.setItem("ieAgents", JSON.stringify(agents));
+    localStorage.setItem("ieCustomers", JSON.stringify(customers));
+    localStorage.setItem("ieCustomerPolicies", JSON.stringify(customerPolicies));
+    localStorage.setItem("ieClaims", JSON.stringify(claims));
+    localStorage.setItem("ieAlerts", JSON.stringify(alerts));
+}
+
+function message(text) {
+    document.getElementById("message").textContent = text;
+}
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;",
+        '"': "&quot;", "'": "&#39;"
+    })[c]);
+}
+
+function showPage(page) {
+    document.querySelectorAll(".container > section").forEach(s => {
+        s.classList.add("hidden");
+    });
+
+    document.getElementById(page).classList.remove("hidden");
+    message("");
+
+    if (page === "home") displayPolicies();
+    if (page === "dashboard") displayDashboard();
+    if (page === "agent" && currentAgent) displayAgentPanel();
+    if (page === "admin" && isAdmin) displayAdmin();
+}
+
+// Public policy catalogue
+function displayPolicies() {
+    document.getElementById("policyList").innerHTML = policies.map(p => `
+        <div class="card">
+            <h3>${escapeHTML(p.name)}</h3>
+            <p>${escapeHTML(p.description)}</p>
+            <p>Annual Premium: ₹${Number(p.premium).toLocaleString("en-IN")}</p>
+            <p>Example Coverage: ₹${Number(p.coverage).toLocaleString("en-IN")}</p>
+            <button onclick="comparePolicy(${p.id})">Compare Policy</button>
+        </div>
+    `).join("");
+}
+
+function comparePolicy(id) {
+    const p = policies.find(x => x.id === id);
+    if (!p) return;
+
+    message(
+        p.name + " — Annual premium ₹" + p.premium +
+        ", example coverage ₹" + p.coverage +
+        ". Check actual policy terms with the insurer."
+    );
+}
+
+// User registration and login demonstration
+function userLogin() {
+    const name = document.getElementById("userName").value.trim();
+    const email = document.getElementById("userEmail").value.trim().toLowerCase();
+    const password = document.getElementById("userPassword").value;
+
+    if (!name || !email.includes("@") || !password) {
+        message("Enter a valid name, email, and password.");
+        return;
+    }
+
+    let customer = customers.find(c => c.email === email);
+
+    if (customer && customer.password !== password) {
+        message("Incorrect password.");
+        return;
+    }
+
+    if (!customer) {
+        customer = {name, email, password};
+        customers.push(customer);
+    }
+
+    currentUser = {name: customer.name, email: customer.email};
+    sessionStorage.setItem("ieUser", JSON.stringify(currentUser));
+
+    document.getElementById("userInfo").textContent =
+        "Welcome, " + currentUser.name;
+
+    saveData();
+    message("User login successful.");
+}
+
+// Agent registration
+function registerAgent() {
+    const name = document.getElementById("agentName").value.trim();
+    const email = document.getElementById("agentEmail").value.trim().toLowerCase();
+    const password = document.getElementById("agentPassword").value;
+
+    if (!name || !email.includes("@") || !password) {
+        message("Enter valid agent details.");
+        return;
+    }
+
+    if (agents.some(a => a.email === email)) {
+        message("An agent account with this email already exists.");
+        return;
+    }
+
+    agents.push({
+        id: Date.now(),
+        name,
+        email,
+        password,
+        approved: false,
+        commission: 0
+    });
+
+    saveData();
+    message("Agent registered. Wait for administrator approval.");
+}
+
+function loginAgent() {
+    const email = document.getElementById("agentEmail").value.trim().toLowerCase();
+    const password = document.getElementById("agentPassword").value;
+
+    const agent = agents.find(a =>
+        a.email === email && a.password === password
+    );
+
+    if (!agent) {
+        message("Invalid agent email or password.");
+        return;
+    }
+
+    if (!agent.approved) {
+        message("Your agent account is awaiting admin approval.");
+        return;
+    }
+
+    currentAgent = {id: agent.id, name: agent.name, email: agent.email};
+    sessionStorage.setItem("ieAgent", JSON.stringify(currentAgent));
+
+    displayAgentPanel();
+    message("Agent login successful.");
+}
+
+function displayAgentPanel() {
+    document.getElementById("agentPanel").classList.remove("hidden");
+    displayAgentData();
+}
+
+// Agents create customers
+function createCustomer() {
+    if (!currentAgent) {
+        message("Please log in with an approved agent account.");
+        return;
+    }
+
+    const name = document.getElementById("customerName").value.trim();
+    const email = document.getElementById("customerEmail").value.trim().toLowerCase();
+
+    if (!name || !email.includes("@")) {
+        message("Enter a valid customer name and email.");
+        return;
+    }
+
+    if (customers.some(c => c.email === email)) {
+        message("This customer email is already registered.");
+        return;
+    }
+
+    customers.push({
+        name,
+        email,
+        password: null,
+        agentEmail: currentAgent.email
+    });
+
+    saveData();
+    displayAgentData();
+    message("Customer added successfully.");
+}
+
+// Agents create policies for customers
+function createPolicy() {
+    if (!currentAgent) {
+        message("Please log in with an approved agent account.");
+        return;
+    }
+
+    const email = document.getElementById("policyCustomerEmail")
+        .value.trim().toLowerCase();
+    const type = document.getElementById("agentPolicyType").value;
+    const premium = Number(document.getElementById("policyPremium").value);
+    const dueDate = document.getElementById("policyDueDate").value;
+
+    if (!customers.some(c => c.email === email) ||
+        !Number.isFinite(premium) || premium <= 0 || !dueDate) {
+        message("Enter a registered customer, valid premium, and due date.");
+        return;
+    }
+
+    const policy = {
+        id: Date.now(),
+        customerEmail: email,
+        type,
+        premium,
+        dueDate,
+        status: "Active",
+        paid: false,
+        agentEmail: currentAgent.email
+    };
+
+    customerPolicies.push(policy);
+
+    const agent = agents.find(a => a.email === currentAgent.email);
+    if (agent) agent.commission += premium * 0.05;
+
+    saveData();
+    displayAgentData();
+    message("Customer policy created. Demo commission calculated at 5%.");
+}
+
+function displayAgentData() {
+    const myCustomers = customers.filter(c =>
+        c.agentEmail === currentAgent.email
+    );
+
+    document.getElementById("agentCustomers").innerHTML = myCustomers.length
+        ? myCustomers.map(c => `
+            <div class="item">
+                <p>Name: ${escapeHTML(c.name)}</p>
+                <p>Email: ${escapeHTML(c.email)}</p>
+            </div>
+        `).join("")
+        : "<p>No customers added yet.</p>";
+
+    const myPolicies = customerPolicies.filter(p =>
+        p.agentEmail === currentAgent.email
+    );
+
+    document.getElementById("agentPolicies").innerHTML = myPolicies.length
+        ? myPolicies.map(p => `
+            <div class="item">
+                <p>Customer: ${escapeHTML(p.customerEmail)}</p>
+                <p>Policy: ${escapeHTML(p.type)}</p>
+                <p>Premium: ₹${p.premium}</p>
+                <p>Due Date: ${escapeHTML(p.dueDate)}</p>
+                <p>Status: ${escapeHTML(p.status)}</p>
+            </div>
+        `).join("")
+        : "<p>No policies created yet.</p>";
+
+    const myAlerts = alerts.filter(a =>
+        a.agentEmail === currentAgent.email
+    );
+
+    document.getElementById("agentAlerts").innerHTML = myAlerts.length
+        ? myAlerts.map(a => `
+            <div class="item">
+                <p>${escapeHTML(a.message)}</p>
+                <p>Customer: ${escapeHTML(a.customerEmail)}</p>
+                <p>Date: ${escapeHTML(a.date)}</p>
+            </div>
+        `).join("")
+        : "<p>No alerts generated yet.</p>";
+}
+
+// Generate demo renewal reminders
+function sendAlerts() {
+    if (!currentAgent) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let count = 0;
+
+    customerPolicies.filter(p =>
+        p.agentEmail === currentAgent.email && !p.paid &&
+        p.status === "Active"
+    ).forEach(p => {
+        const due = new Date(p.dueDate + "T00:00:00");
+        const days = Math.ceil((due - today) / 86400000);
+
+        if (days <= 7) {
+            const text = days < 0
+                ? "Premium overdue by " + Math.abs(days) + " day(s)."
+                : days === 0
+                    ? "Premium is due today."
+                    : "Premium is due in " + days + " day(s).";
+
+            const exists = alerts.some(a =>
+                a.policyId === p.id && a.date === today.toISOString().slice(0, 10)
+            );
+
+            if (!exists) {
+                alerts.push({
+                    id: Date.now() + count,
+                    policyId: p.id,
+                    customerEmail: p.customerEmail,
+                    agentEmail: p.agentEmail,
+                    message: text,
+                    date: today.toISOString().slice(0, 10)
+                });
+                count++;
+            }
+        }
+    });
+
+    saveData();
+    displayAgentData();
+    message(count + " renewal alert(s) generated.");
+}
+
+// Customer dashboard
+function displayDashboard() {
+    const ownPolicies = currentUser
+        ? customerPolicies.filter(p => p.customerEmail === currentUser.email)
+        : [];
+
+    document.getElementById("myPolicies").innerHTML = ownPolicies.length
+        ? ownPolicies.map(p => `
+            <div class="item">
+                <h3>${escapeHTML(p.type)}</h3>
+                <p>Premium: ₹${p.premium}</p>
+                <p>Due Date: ${escapeHTML(p.dueDate)}</p>
+                <p>Status: ${escapeHTML(p.status)}</p>
+                <p>Payment: ${p.paid ? "Paid" : "Pending"}</p>
+            </div>
+        `).join("")
+        : "<p>Log in to view policies assigned to your account.</p>";
+
+    document.getElementById("paymentPolicies").innerHTML = ownPolicies.length
+        ? ownPolicies.filter(p => !p.paid).map(p => `
+            <div class="item">
+                <p>${escapeHTML(p.type)} — ₹${p.premium}</p>
+                <button onclick="payPremium(${p.id})">Mark Premium as Paid (Demo)</button>
+            </div>
+        `).join("") || "<p>No pending premiums.</p>"
+        : "<p>No policies available.</p>";
+
+    document.getElementById("claimPolicy").innerHTML = ownPolicies.length
+        ? ownPolicies.map(p =>
+            `<option value="${p.id}">${escapeHTML(p.type)} — Policy #${p.id}</option>`
+          ).join("")
+        : '<option value="">No policies available</option>';
+
+    const ownClaims = currentUser
+        ? claims.filter(c => c.email === currentUser.email)
+        : [];
+
+    document.getElementById("myClaims").innerHTML = ownClaims.length
+        ? ownClaims.map(c => `
+            <div class="item">
+                <p>Claim: ${escapeHTML(c.description)}</p>
+                <p>Status: ${escapeHTML(c.status)}</p>
+            </div>
+        `).join("")
+        : "<p>No claims submitted.</p>";
+
+    const ownAlerts = currentUser
+        ? alerts.filter(a => a.customerEmail === currentUser.email)
+        : [];
+
+    document.getElementById("myAlerts").innerHTML = ownAlerts.length
+        ? ownAlerts.map(a => `
+            <div class="item">
+                <p>${escapeHTML(a.message)}</p>
+                <p>Date: ${escapeHTML(a.date)}</p>
+            </div>
+        `).join("")
+        : "<p>No renewal alerts available.</p>";
+}
+
+function payPremium(id) {
+    if (!currentUser) {
+        message("Please log in first.");
+        return;
+    }
+
+    const p = customerPolicies.find(x =>
+        x.id === id && x.customerEmail === currentUser.email
+    );
+
+    if (!p || p.paid) return;
+
+    if (!confirm("Simulate payment of ₹" + p.premium + "?")) return;
+
+    p.paid = true;
+    saveData();
+    displayDashboard();
+    message("Demo payment marked as successful.");
+}
+
+function fileClaim() {
+    if (!currentUser) {
+        message("Please log in before submitting a claim.");
+        return;
+    }
+
+    const policyId = Number(document.getElementById("claimPolicy").value);
+    const description = document.getElementById("claimDescription").value.trim();
+
+    const p = customerPolicies.find(x =>
+        x.id === policyId && x.customerEmail === currentUser.email
+    );
+
+    if (!p || !description) {
+        message("Select a policy and enter the claim details.");
+        return;
+    }
+
+    claims.push({
+        id: Date.now(),
+        policyId,
+        email: currentUser.email,
+        description,
+        status: "Submitted"
+    });
+
+    saveData();
+    displayDashboard();
+    document.getElementById("claimDescription").value = "";
+    message("Claim submitted successfully.");
+}
+
+// Admin functions
+function adminLogin() {
+    if (document.getElementById("adminName").value === "admin" &&
+        document.getElementById("adminPassword").value === "admin123") {
+        isAdmin = true;
+        document.getElementById("adminPanel").classList.remove("hidden");
+        displayAdmin();
+        message("Admin login successful.");
+    } else {
+        message("Invalid admin username or password.");
+    }
+}
+
+function displayAdmin() {
+    document.getElementById("agentApprovalList").innerHTML = agents.length
+        ? agents.map(a => `
+            <div class="item">
+                <p>${escapeHTML(a.name)} — ${escapeHTML(a.email)}</p>
+                <p>Status: ${a.approved ? "Approved" : "Pending"}</p>
+                ${!a.approved
+                    ? `<button onclick="approveAgent(${a.id})">Approve Agent</button>`
+                    : ""}
+            </div>
+        `).join("")
+        : "<p>No agents registered.</p>";
+
+    document.getElementById("allAgents").innerHTML = agents.length
+        ? agents.map(a => `
+            <div class="item">
+                <p>Name: ${escapeHTML(a.name)}</p>
+                <p>Email: ${escapeHTML(a.email)}</p>
+                <p>Approved: ${a.approved ? "Yes" : "No"}</p>
+                <p>Demo Commission: ₹${Number(a.commission).toFixed(2)}</p>
+            </div>
+        `).join("")
+        : "<p>No agent records.</p>";
+
+    document.getElementById("allCustomers").innerHTML = customers.length
+        ? customers.map(c => `
+            <div class="item">
+                <p>Name: ${escapeHTML(c.name)}</p>
+                <p>Email: ${escapeHTML(c.email)}</p>
+                <p>Agent: ${escapeHTML(c.agentEmail || "Self-registered")}</p>
+            </div>
+        `).join("")
+        : "<p>No customers registered.</p>";
+
+    document.getElementById("allPolicies").innerHTML = customerPolicies.length
+        ? customerPolicies.map(p => `
+            <div class="item">
+                <p>Customer: ${escapeHTML(p.customerEmail)}</p>
+                <p>Policy: ${escapeHTML(p.type)}</p>
+                <p>Premium: ₹${p.premium}</p>
+                <p>Due: ${escapeHTML(p.dueDate)}</p>
+                <p>Payment: ${p.paid ? "Paid" : "Pending"}</p>
+            </div>
+        `).join("")
+        : "<p>No customer policies.</p>";
+
+    document.getElementById("allClaims").innerHTML = claims.length
+        ? claims.map(c => `
+            <div class="item">
+                <p>Customer: ${escapeHTML(c.email)}</p>
+                <p>Claim: ${escapeHTML(c.description)}</p>
+                <p>Status: ${escapeHTML(c.status)}</p>
+                <select id="claimStatus${c.id}">
+                    <option>Submitted</option>
+                    <option>Under Review</option>
+                    <option>Approved</option>
+                    <option>Rejected</option>
+                </select>
+                <button onclick="updateClaim(${c.id})">Update Claim</button>
+            </div>
+        `).join("")
+        : "<p>No claims submitted.</p>";
+
+    const totalCommission = agents.reduce((sum, a) =>
+        sum + Number(a.commission || 0), 0);
+
+    document.getElementById("commissionSummary").innerHTML =
+        "<p>Total demo agent commission: ₹" +
+        totalCommission.toFixed(2) + "</p>";
+}
+
+function approveAgent(id) {
+    if (!isAdmin) return;
+
+    const agent = agents.find(a => a.id === id);
+    if (!agent) return;
+
+    agent.approved = true;
+    saveData();
+    displayAdmin();
+    message("Agent approved successfully.");
+}
+
+function updateClaim(id) {
+    if (!isAdmin) return;
+
+    const claim = claims.find(c => c.id === id);
+    if (!claim) return;
+
+    claim.status = document.getElementById("claimStatus" + id).value;
+    saveData();
+    displayAdmin();
+    displayDashboard();
+    message("Claim status updated.");
+}
+
+function logout() {
+    currentUser = null;
+    currentAgent = null;
+    isAdmin = false;
+
+    sessionStorage.removeItem("ieUser");
+    sessionStorage.removeItem("ieAgent");
+
+    document.getElementById("adminPanel").classList.add("hidden");
+    document.getElementById("agentPanel").classList.add("hidden");
+    document.getElementById("userInfo").textContent = "";
+
+    message("Logged out successfully.");
+    showPage("home");
+}
+
+displayPolicies();
+</script>
+
+</body>
+</html>

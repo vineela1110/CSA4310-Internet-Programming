@@ -1,0 +1,717 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoteOnline - E-Voting System</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f2f5fb;color:#202943}
+header{background:#18264b;color:white;padding:20px;text-align:center}
+header h1{margin:0 0 7px}
+nav{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;background:#fff;padding:12px;box-shadow:0 2px 8px #ddd}
+button{background:#3157c8;color:white;border:0;border-radius:6px;padding:10px 15px;cursor:pointer;margin:3px}
+button:hover{background:#203d9c}
+button.secondary{background:#64748b}
+button.danger{background:#c62828}
+input,select,textarea{width:100%;padding:10px;margin:6px 0 12px;border:1px solid #ccd3e0;border-radius:5px;font:inherit}
+label{font-weight:bold;font-size:14px}
+.container{max-width:1100px;margin:25px auto;padding:0 15px}
+.card{background:white;padding:20px;margin-bottom:18px;border-radius:10px;box-shadow:0 3px 12px #17255412}
+h2,h3{color:#243c82}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.hidden{display:none!important}
+.notice{padding:12px;background:#e9efff;border-radius:6px;margin:10px 0}
+.success{color:#137333;font-weight:bold}
+.error{color:#c62828;font-weight:bold}
+table{width:100%;border-collapse:collapse;margin-top:12px;background:white}
+th,td{padding:10px;border:1px solid #ddd;text-align:left}
+th{background:#e8edfc}
+.table-wrap{overflow-x:auto}
+.candidate{border:1px solid #d9deeb;border-radius:8px;padding:14px;margin:10px 0}
+.candidate input{width:auto}
+.stat{font-size:25px;font-weight:bold;color:#3157c8}
+footer{text-align:center;padding:20px;color:#64748b}
+</style>
+</head>
+<body>
+<header>
+<h1>🗳️ VoteOnline</h1>
+<p>A simple online election management system</p>
+</header>
+
+<nav>
+<button onclick="showPage('home')">Home</button>
+<button onclick="showPage('adminLogin')">Admin</button>
+<button onclick="showPage('voterLogin')">Voter Login</button>
+<button onclick="showPage('results')">Election Results</button>
+</nav>
+
+<div class="container">
+
+<section id="home" class="page">
+<div class="card">
+<h2>Welcome to VoteOnline</h2>
+<p>VoteOnline allows registered voters to verify their identity, view available candidates, and submit their vote in an election.</p>
+<div class="notice">Voters must be added to the voter list by the administrator before they can log in.</div>
+<button onclick="showPage('voterLogin')">Login as Voter</button>
+<button onclick="showPage('adminLogin')">Admin Dashboard</button>
+</div>
+<div class="grid">
+<div class="card"><h3>Identity Verification</h3><p>Voter ID and demo OTP verification.</p></div>
+<div class="card"><h3>Election Management</h3><p>Manage elections, candidates, wards, and voters.</p></div>
+<div class="card"><h3>Results</h3><p>View vote counts for completed or ongoing demo elections.</p></div>
+</div>
+</section>
+
+<section id="adminLogin" class="page hidden">
+<div class="card">
+<h2>Admin Login</h2>
+<label>Username</label><input id="adminUser" placeholder="Enter admin username">
+<label>Password</label><input id="adminPass" type="password" placeholder="Enter password">
+<button onclick="adminLogin()">Login</button>
+<p id="adminLoginMsg"></p>
+<p class="notice">Demo credentials: <b>admin</b> / <b>admin123</b></p>
+</div>
+</section>
+
+<section id="adminPanel" class="page hidden">
+<div class="card">
+<h2>Admin Dashboard</h2>
+<p>Manage elections, candidates, voter lists, and results.</p>
+<button onclick="adminLogout()" class="danger">Logout</button>
+<div class="grid">
+<div class="card"><div class="stat" id="statElections">0</div>Elections</div>
+<div class="card"><div class="stat" id="statCandidates">0</div>Candidates</div>
+<div class="card"><div class="stat" id="statVoters">0</div>Registered Voters</div>
+<div class="card"><div class="stat" id="statVotes">0</div>Votes Submitted</div>
+</div>
+</div>
+
+<div class="card">
+<h3>1. Create Election</h3>
+<label>Election Name</label><input id="electionName" placeholder="e.g. Student Council Election">
+<label>Ward / Constituency</label><input id="electionWard" placeholder="e.g. Ward 1">
+<label>Election Date</label><input id="electionDate" type="date">
+<label>Status</label>
+<select id="electionStatus">
+<option value="Open">Open</option>
+<option value="Closed">Closed</option>
+</select>
+<button onclick="createElection()">Create Election</button>
+<div id="electionList"></div>
+</div>
+
+<div class="card">
+<h3>2. Create Candidate and Allocate to Election</h3>
+<label>Candidate Name</label><input id="candidateName" placeholder="Candidate full name">
+<label>Party / Group</label><input id="candidateParty" placeholder="Party or group name">
+<label>Candidate Details</label><textarea id="candidateDetails" placeholder="Enter candidate information"></textarea>
+<label>Select Election</label><select id="candidateElection"></select>
+<button onclick="createCandidate()">Add Candidate</button>
+<div id="candidateList"></div>
+</div>
+
+<div class="card">
+<h3>3. Create Voter List</h3>
+<label>Voter ID</label><input id="newVoterId" placeholder="Unique voter ID">
+<label>Voter Name</label><input id="newVoterName" placeholder="Full name">
+<label>Ward</label><input id="newVoterWard" placeholder="Ward / constituency">
+<label>Phone Number (for demo record)</label><input id="newVoterPhone" placeholder="Phone number">
+<button onclick="createVoter()">Add Voter</button>
+</div>
+
+<div class="card">
+<h3>4. Import Voter List from CSV</h3>
+<p>CSV columns: <b>VoterID, Name, Ward, Phone</b></p>
+<input type="file" id="csvFile" accept=".csv">
+<button onclick="importVoters()">Import CSV</button>
+<p id="csvMsg"></p>
+</div>
+
+<div class="card">
+<h3>5. View and Update Voter List</h3>
+<div class="table-wrap"><div id="voterList"></div></div>
+</div>
+
+<div class="card">
+<h3>6. Election Results</h3>
+<div class="table-wrap"><div id="adminResults"></div></div>
+</div>
+</section>
+
+<section id="voterLogin" class="page hidden">
+<div class="card">
+<h2>Voter Login</h2>
+<label>Voter ID</label><input id="loginVoterId" placeholder="Enter registered Voter ID">
+<button onclick="requestLoginOTP()">Get Login OTP</button>
+<div id="loginOTPBox" class="hidden">
+<div class="notice">Demo OTP: <b id="loginDemoOTP"></b>. In a real system, the OTP must be sent through a verified channel.</div>
+<label>Enter OTP</label><input id="loginOTPInput" maxlength="6" placeholder="6-digit OTP">
+<button onclick="verifyLoginOTP()">Verify and Login</button>
+</div>
+<p id="voterLoginMsg"></p>
+</div>
+</section>
+
+<section id="voterPanel" class="page hidden">
+<div class="card">
+<h2>Voter Dashboard</h2>
+<p id="voterWelcome"></p>
+<button onclick="voterLogout()" class="danger">Logout</button>
+</div>
+<div class="card">
+<h3>Available Elections</h3>
+<div id="availableElections"></div>
+</div>
+<div class="card">
+<h3>My Voting History</h3>
+<div class="table-wrap"><div id="myHistory"></div></div>
+</div>
+</section>
+
+<section id="votePage" class="page hidden">
+<div class="card">
+<h2>Cast Your Vote</h2>
+<p id="voteElectionInfo"></p>
+<div id="voteCandidates"></div>
+<button onclick="requestVotingOTP()">Get OTP for Voting</button>
+<div id="voteOTPBox" class="hidden">
+<div class="notice">Demo voting OTP: <b id="voteDemoOTP"></b></div>
+<label>Enter Voting OTP</label><input id="voteOTPInput" maxlength="6" placeholder="6-digit OTP">
+<button onclick="submitVote()">Confirm and Submit Vote</button>
+</div>
+<p id="voteMsg"></p>
+<button class="secondary" onclick="backToVoter()">Back to Dashboard</button>
+</div>
+</section>
+
+<section id="results" class="page hidden">
+<div class="card">
+<h2>Election Results</h2>
+<p>Results are calculated from votes stored in this browser's demo data.</p>
+<div id="publicResults"></div>
+</div>
+</section>
+
+</div>
+
+<footer>VoteOnline | Educational Demo Project</footer>
+
+<script>
+const KEY = "voteonline_data_v1";
+let data = JSON.parse(localStorage.getItem(KEY) || "null");
+
+if (!data) {
+  data = { elections: [], candidates: [], voters: [], votes: [] };
+  saveData();
+}
+
+let adminLoggedIn = false;
+let currentVoter = null;
+let activeElectionId = null;
+let loginOTP = null;
+let votingOTP = null;
+let selectedCandidateId = null;
+
+function saveData() {
+  localStorage.setItem(KEY, JSON.stringify(data));
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function safe(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[c]));
+}
+
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  if (id === "results") renderPublicResults();
+}
+
+function adminLogin() {
+  const u = document.getElementById("adminUser").value.trim();
+  const p = document.getElementById("adminPass").value;
+  if (u === "admin" && p === "admin123") {
+    adminLoggedIn = true;
+    renderAdmin();
+    showPage("adminPanel");
+  } else {
+    document.getElementById("adminLoginMsg").innerHTML =
+      '<span class="error">Invalid username or password.</span>';
+  }
+}
+
+function adminLogout() {
+  adminLoggedIn = false;
+  showPage("home");
+}
+
+function requireAdmin() {
+  if (!adminLoggedIn) {
+    alert("Please log in as administrator first.");
+    return false;
+  }
+  return true;
+}
+
+function createElection() {
+  if (!requireAdmin()) return;
+  const name = document.getElementById("electionName").value.trim();
+  const ward = document.getElementById("electionWard").value.trim();
+  const date = document.getElementById("electionDate").value;
+  const status = document.getElementById("electionStatus").value;
+
+  if (!name || !ward || !date) {
+    alert("Enter the election name, ward, and date.");
+    return;
+  }
+
+  data.elections.push({ id: uid(), name, ward, date, status });
+  saveData();
+  document.getElementById("electionName").value = "";
+  document.getElementById("electionWard").value = "";
+  document.getElementById("electionDate").value = "";
+  renderAdmin();
+  alert("Election created successfully.");
+}
+
+function createCandidate() {
+  if (!requireAdmin()) return;
+  const name = document.getElementById("candidateName").value.trim();
+  const party = document.getElementById("candidateParty").value.trim();
+  const details = document.getElementById("candidateDetails").value.trim();
+  const electionId = document.getElementById("candidateElection").value;
+
+  if (!name || !party || !electionId) {
+    alert("Enter the candidate name, party/group, and select an election.");
+    return;
+  }
+
+  data.candidates.push({ id: uid(), name, party, details, electionId });
+  saveData();
+  document.getElementById("candidateName").value = "";
+  document.getElementById("candidateParty").value = "";
+  document.getElementById("candidateDetails").value = "";
+  renderAdmin();
+  alert("Candidate added to the election.");
+}
+
+function createVoter() {
+  if (!requireAdmin()) return;
+  const voterId = document.getElementById("newVoterId").value.trim();
+  const name = document.getElementById("newVoterName").value.trim();
+  const ward = document.getElementById("newVoterWard").value.trim();
+  const phone = document.getElementById("newVoterPhone").value.trim();
+
+  if (!voterId || !name || !ward) {
+    alert("Voter ID, name, and ward are required.");
+    return;
+  }
+  if (data.voters.some(v => v.voterId.toLowerCase() === voterId.toLowerCase())) {
+    alert("This Voter ID already exists.");
+    return;
+  }
+
+  data.voters.push({ id: uid(), voterId, name, ward, phone, active: true });
+  saveData();
+  ["newVoterId","newVoterName","newVoterWard","newVoterPhone"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  renderAdmin();
+  alert("Voter added successfully.");
+}
+
+function importVoters() {
+  if (!requireAdmin()) return;
+  const file = document.getElementById("csvFile").files[0];
+  const msg = document.getElementById("csvMsg");
+  if (!file) {
+    msg.innerHTML = '<span class="error">Please select a CSV file.</span>';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function() {
+    const lines = String(reader.result).split(/\r?\n/).filter(line => line.trim());
+    let added = 0;
+    lines.forEach((line, index) => {
+      if (index === 0 && /voter.?id/i.test(line)) return;
+      const cols = line.split(",").map(s => s.trim().replace(/^"|"$/g, ""));
+      if (cols.length < 3 || !cols[0] || !cols[1] || !cols[2]) return;
+      if (data.voters.some(v => v.voterId.toLowerCase() === cols[0].toLowerCase())) return;
+      data.voters.push({
+        id: uid(), voterId: cols[0], name: cols[1], ward: cols[2],
+        phone: cols[3] || "", active: true
+      });
+      added++;
+    });
+    saveData();
+    renderAdmin();
+    msg.innerHTML = '<span class="success">Imported ' + added + ' voter(s).</span>';
+  };
+  reader.readAsText(file);
+}
+
+function updateVoter(id) {
+  if (!requireAdmin()) return;
+  const voter = data.voters.find(v => v.id === id);
+  if (!voter) return;
+  const name = prompt("Update voter name:", voter.name);
+  if (name === null || !name.trim()) return;
+  const ward = prompt("Update voter ward:", voter.ward);
+  if (ward === null || !ward.trim()) return;
+  const phone = prompt("Update phone number:", voter.phone || "");
+  if (phone === null) return;
+  voter.name = name.trim();
+  voter.ward = ward.trim();
+  voter.phone = phone.trim();
+  saveData();
+  renderAdmin();
+}
+
+function toggleVoter(id) {
+  if (!requireAdmin()) return;
+  const voter = data.voters.find(v => v.id === id);
+  if (!voter) return;
+  voter.active = !voter.active;
+  saveData();
+  renderAdmin();
+}
+
+function deleteElection(id) {
+  if (!requireAdmin()) return;
+  if (!confirm("Delete this election and its candidates? Existing vote records are retained for demo history.")) return;
+  data.elections = data.elections.filter(e => e.id !== id);
+  data.candidates = data.candidates.filter(c => c.electionId !== id);
+  saveData();
+  renderAdmin();
+}
+
+function renderAdmin() {
+  if (!adminLoggedIn) return;
+
+  document.getElementById("statElections").textContent = data.elections.length;
+  document.getElementById("statCandidates").textContent = data.candidates.length;
+  document.getElementById("statVoters").textContent = data.voters.length;
+  document.getElementById("statVotes").textContent = data.votes.length;
+
+  document.getElementById("candidateElection").innerHTML =
+    '<option value="">Select election</option>' +
+    data.elections.map(e => `<option value="${safe(e.id)}">${safe(e.name)} — ${safe(e.ward)}</option>`).join("");
+
+  document.getElementById("electionList").innerHTML = "<h4>Created Elections</h4>" +
+    (data.elections.length ? data.elections.map(e => `
+      <div class="candidate">
+        <b>${safe(e.name)}</b> — ${safe(e.ward)}<br>
+        Date: ${safe(e.date)} | Status: ${safe(e.status)}<br>
+        <button onclick="changeElectionStatus('${e.id}')">Change Status</button>
+        <button class="danger" onclick="deleteElection('${e.id}')">Delete</button>
+      </div>`).join("") : "<p>No elections created yet.</p>");
+
+  document.getElementById("candidateList").innerHTML = "<h4>Candidate List</h4>" +
+    (data.candidates.length ? data.candidates.map(c => {
+      const e = data.elections.find(e => e.id === c.electionId);
+      return `<div class="candidate"><b>${safe(c.name)}</b> — ${safe(c.party)}<br>
+      Election: ${safe(e ? e.name : "Deleted election")}<br>
+      ${safe(c.details)}<br>
+      <button class="danger" onclick="deleteCandidate('${c.id}')">Delete Candidate</button></div>`;
+    }).join("") : "<p>No candidates added yet.</p>");
+
+  document.getElementById("voterList").innerHTML = data.voters.length ? `
+    <table><tr><th>Voter ID</th><th>Name</th><th>Ward</th><th>Phone</th><th>Status</th><th>Actions</th></tr>
+    ${data.voters.map(v => `<tr>
+      <td>${safe(v.voterId)}</td><td>${safe(v.name)}</td><td>${safe(v.ward)}</td>
+      <td>${safe(v.phone)}</td><td>${v.active ? "Active" : "Inactive"}</td>
+      <td><button onclick="updateVoter('${v.id}')">Update</button>
+      <button class="secondary" onclick="toggleVoter('${v.id}')">${v.active ? "Deactivate" : "Activate"}</button></td>
+    </tr>`).join("")}</table>` : "<p>No voters registered yet.</p>";
+
+  document.getElementById("adminResults").innerHTML = makeResultsTable();
+}
+
+function changeElectionStatus(id) {
+  if (!requireAdmin()) return;
+  const e = data.elections.find(e => e.id === id);
+  if (!e) return;
+  e.status = e.status === "Open" ? "Closed" : "Open";
+  saveData();
+  renderAdmin();
+}
+
+function deleteCandidate(id) {
+  if (!requireAdmin()) return;
+  const c = data.candidates.find(c => c.id === id);
+  if (!c) return;
+  if (data.votes.some(v => v.candidateId === id)) {
+    alert("This candidate has votes and cannot be deleted.");
+    return;
+  }
+  data.candidates = data.candidates.filter(c => c.id !== id);
+  saveData();
+  renderAdmin();
+}
+
+function requestLoginOTP() {
+  const voterId = document.getElementById("loginVoterId").value.trim();
+  const voter = data.voters.find(v =>
+    v.voterId.toLowerCase() === voterId.toLowerCase() && v.active
+  );
+
+  const msg = document.getElementById("voterLoginMsg");
+  if (!voter) {
+    msg.innerHTML = '<span class="error">Voter ID not found or voter is inactive. Contact the administrator.</span>';
+    document.getElementById("loginOTPBox").classList.add("hidden");
+    return;
+  }
+
+  currentVoter = voter;
+  loginOTP = String(Math.floor(100000 + Math.random() * 900000));
+  document.getElementById("loginDemoOTP").textContent = loginOTP;
+  document.getElementById("loginOTPInput").value = "";
+  document.getElementById("loginOTPBox").classList.remove("hidden");
+  msg.textContent = "";
+}
+
+function verifyLoginOTP() {
+  const entered = document.getElementById("loginOTPInput").value.trim();
+  const msg = document.getElementById("voterLoginMsg");
+  if (!currentVoter || !loginOTP || entered !== loginOTP) {
+    msg.innerHTML = '<span class="error">Incorrect OTP. Request a new OTP and try again.</span>';
+    return;
+  }
+
+  loginOTP = null;
+  document.getElementById("loginOTPBox").classList.add("hidden");
+  document.getElementById("voterWelcome").textContent =
+    "Welcome, " + currentVoter.name + " (" + currentVoter.voterId + ") — Ward: " + currentVoter.ward;
+  msg.textContent = "";
+  renderVoterPanel();
+  showPage("voterPanel");
+}
+
+function voterLogout() {
+  currentVoter = null;
+  activeElectionId = null;
+  votingOTP = null;
+  selectedCandidateId = null;
+  showPage("home");
+}
+
+function hasVoted(voterId, electionId) {
+  return data.votes.some(v => v.voterId === voterId && v.electionId === electionId);
+}
+
+function renderVoterPanel() {
+  if (!currentVoter) return;
+
+  const available = data.elections.filter(e =>
+    e.status === "Open" && e.ward.toLowerCase() === currentVoter.ward.toLowerCase()
+  );
+
+  document.getElementById("availableElections").innerHTML = available.length ?
+    available.map(e => {
+      const voted = hasVoted(currentVoter.voterId, e.id);
+      const candidates = data.candidates.filter(c => c.electionId === e.id);
+      return `<div class="candidate">
+        <h3>${safe(e.name)}</h3>
+        <p>Ward: ${safe(e.ward)} | Date: ${safe(e.date)}</p>
+        <p>Candidates: ${candidates.length}</p>
+        <p>${voted ? '<span class="success">Vote already submitted</span>' : 'Voting is open'}</p>
+        <button ${voted || !candidates.length ? "disabled" : ""} onclick="openVoting('${e.id}')">
+          ${voted ? "Already Voted" : "View Candidates and Vote"}
+        </button>
+      </div>`;
+    }).join("") : "<p>No open elections are available for your ward.</p>";
+
+  const history = data.votes.filter(v => v.voterId === currentVoter.voterId);
+  document.getElementById("myHistory").innerHTML = history.length ? `
+    <table><tr><th>Election</th><th>Ward</th><th>Confirmation</th></tr>
+    ${history.map(v => {
+      const e = data.elections.find(e => e.id === v.electionId);
+      return `<tr><td>${safe(e ? e.name : v.electionName)}</td>
+      <td>${safe(v.ward)}</td><td>${safe(v.confirmation)}</td></tr>`;
+    }).join("")}</table>` : "<p>You have not submitted any votes.</p>";
+}
+
+function openVoting(electionId) {
+  if (!currentVoter) return;
+  const e = data.elections.find(e => e.id === electionId);
+  if (!e || e.status !== "Open" ||
+      e.ward.toLowerCase() !== currentVoter.ward.toLowerCase()) {
+    alert("This election is not available for your ward.");
+    return;
+  }
+  if (hasVoted(currentVoter.voterId, electionId)) {
+    alert("You have already voted in this election.");
+    return;
+  }
+
+  activeElectionId = electionId;
+  selectedCandidateId = null;
+  votingOTP = null;
+  document.getElementById("voteOTPBox").classList.add("hidden");
+  document.getElementById("voteMsg").textContent = "";
+  document.getElementById("voteElectionInfo").textContent =
+    e.name + " | Ward: " + e.ward + " | Date: " + e.date;
+
+  const candidates = data.candidates.filter(c => c.electionId === electionId);
+  document.getElementById("voteCandidates").innerHTML = candidates.map(c => `
+    <label class="candidate" style="display:block;cursor:pointer">
+      <input type="radio" name="candidateChoice" value="${safe(c.id)}">
+      <b>${safe(c.name)}</b> — ${safe(c.party)}
+      <p>${safe(c.details)}</p>
+    </label>`).join("");
+
+  showPage("votePage");
+}
+
+function requestVotingOTP() {
+  if (!currentVoter || !activeElectionId) return;
+  const e = data.elections.find(e => e.id === activeElectionId);
+  if (!e || e.status !== "Open" || hasVoted(currentVoter.voterId, activeElectionId)) {
+    alert("Voting is no longer available.");
+    return;
+  }
+
+  const choice = document.querySelector('input[name="candidateChoice"]:checked');
+  if (!choice) {
+    document.getElementById("voteMsg").innerHTML =
+      '<span class="error">Please select a candidate first.</span>';
+    return;
+  }
+
+  selectedCandidateId = choice.value;
+  votingOTP = String(Math.floor(100000 + Math.random() * 900000));
+  document.getElementById("voteDemoOTP").textContent = votingOTP;
+  document.getElementById("voteOTPInput").value = "";
+  document.getElementById("voteOTPBox").classList.remove("hidden");
+  document.getElementById("voteMsg").textContent = "";
+}
+
+function submitVote() {
+  if (!currentVoter || !activeElectionId || !selectedCandidateId) return;
+
+  const e = data.elections.find(e => e.id === activeElectionId);
+  const c = data.candidates.find(c =>
+    c.id === selectedCandidateId && c.electionId === activeElectionId
+  );
+
+  if (!e || e.status !== "Open" || !c || hasVoted(currentVoter.voterId, activeElectionId)) {
+    document.getElementById("voteMsg").innerHTML =
+      '<span class="error">Unable to submit vote. Please return to your dashboard.</span>';
+    return;
+  }
+
+  const entered = document.getElementById("voteOTPInput").value.trim();
+  if (!votingOTP || entered !== votingOTP) {
+    document.getElementById("voteMsg").innerHTML =
+      '<span class="error">Incorrect voting OTP.</span>';
+    return;
+  }
+
+  const confirmation = "VOTE-" + uid().toUpperCase();
+  data.votes.push({
+    id: uid(),
+    voterId: currentVoter.voterId,
+    electionId: e.id,
+    electionName: e.name,
+    ward: e.ward,
+    candidateId: c.id,
+    confirmation,
+    submittedAt: new Date().toLocaleString()
+  });
+  saveData();
+
+  votingOTP = null;
+  selectedCandidateId = null;
+  document.getElementById("voteOTPBox").classList.add("hidden");
+  document.getElementById("voteCandidates").innerHTML = "";
+  document.getElementById("voteMsg").innerHTML =
+    '<span class="success">Vote submitted successfully! Confirmation ID: ' +
+    safe(confirmation) + '</span><p>Your choice is not shown in the confirmation message.</p>';
+
+  renderVoterPanel();
+  if (adminLoggedIn) renderAdmin();
+}
+
+function backToVoter() {
+  if (currentVoter) {
+    activeElectionId = null;
+    selectedCandidateId = null;
+    votingOTP = null;
+    renderVoterPanel();
+    showPage("voterPanel");
+  } else {
+    showPage("home");
+  }
+}
+
+function makeResultsTable() {
+  if (!data.elections.length) return "<p>No elections available.</p>";
+  return data.elections.map(e => {
+    const candidates = data.candidates.filter(c => c.electionId === e.id);
+    const total = data.votes.filter(v => v.electionId === e.id).length;
+    return `<h4>${safe(e.name)} — ${safe(e.ward)} (${safe(e.status)})</h4>
+      <p>Total votes submitted: <b>${total}</b></p>
+      ${candidates.length ? `<table><tr><th>Candidate</th><th>Party / Group</th><th>Votes</th></tr>
+      ${candidates.map(c => `<tr><td>${safe(c.name)}</td><td>${safe(c.party)}</td>
+      <td>${data.votes.filter(v => v.electionId === e.id && v.candidateId === c.id).length}</td></tr>`).join("")}
+      </table>` : "<p>No candidates allocated to this election.</p>"}`;
+  }).join("<hr>");
+}
+
+function renderPublicResults() {
+  document.getElementById("publicResults").innerHTML = makeResultsTable();
+}
+
+function renderAdminResults() {
+  document.getElementById("adminResults").innerHTML = makeResultsTable();
+}
+
+function renderAdmin() {
+  if (!adminLoggedIn) return;
+  document.getElementById("statElections").textContent = data.elections.length;
+  document.getElementById("statCandidates").textContent = data.candidates.length;
+  document.getElementById("statVoters").textContent = data.voters.length;
+  document.getElementById("statVotes").textContent = data.votes.length;
+
+  document.getElementById("candidateElection").innerHTML =
+    '<option value="">Select election</option>' +
+    data.elections.map(e => `<option value="${safe(e.id)}">${safe(e.name)} — ${safe(e.ward)}</option>`).join("");
+
+  document.getElementById("electionList").innerHTML = "<h4>Created Elections</h4>" +
+    (data.elections.length ? data.elections.map(e => `
+      <div class="candidate"><b>${safe(e.name)}</b> — ${safe(e.ward)}<br>
+      Date: ${safe(e.date)} | Status: ${safe(e.status)}<br>
+      <button onclick="changeElectionStatus('${e.id}')">Change Status</button>
+      <button class="danger" onclick="deleteElection('${e.id}')">Delete</button></div>
+    `).join("") : "<p>No elections created yet.</p>");
+
+  document.getElementById("candidateList").innerHTML = "<h4>Candidate List</h4>" +
+    (data.candidates.length ? data.candidates.map(c => {
+      const e = data.elections.find(e => e.id === c.electionId);
+      return `<div class="candidate"><b>${safe(c.name)}</b> — ${safe(c.party)}<br>
+      Election: ${safe(e ? e.name : "Deleted election")}<br>${safe(c.details)}<br>
+      <button class="danger" onclick="deleteCandidate('${c.id}')">Delete Candidate</button></div>`;
+    }).join("") : "<p>No candidates added yet.</p>");
+
+  document.getElementById("voterList").innerHTML = data.voters.length ? `
+    <table><tr><th>Voter ID</th><th>Name</th><th>Ward</th><th>Phone</th><th>Status</th><th>Actions</th></tr>
+    ${data.voters.map(v => `<tr><td>${safe(v.voterId)}</td><td>${safe(v.name)}</td>
+    <td>${safe(v.ward)}</td><td>${safe(v.phone)}</td><td>${v.active ? "Active" : "Inactive"}</td>
+    <td><button onclick="updateVoter('${v.id}')">Update</button>
+    <button class="secondary" onclick="toggleVoter('${v.id}')">${v.active ? "Deactivate" : "Activate"}</button></td></tr>`).join("")}</table>
+  ` : "<p>No voters registered yet.</p>";
+
+  renderAdminResults();
+}
+</script>
+</body>
+</html>

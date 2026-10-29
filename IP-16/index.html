@@ -1,0 +1,477 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ComplainEase - Complaint Management System</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#263449}
+header{background:#243e75;color:white;text-align:center;padding:20px}
+nav{background:#172c58;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:12px}
+button{background:#315db5;color:white;border:0;padding:10px 14px;margin:3px;border-radius:5px;cursor:pointer}
+button:hover{background:#203e80}
+input,select,textarea{width:auto;max-width:100%;padding:10px;margin:5px;border:1px solid #ccd4e1;border-radius:5px}
+textarea{width:95%;min-height:85px}
+main{max-width:1150px;margin:auto;padding:20px}
+h2{color:#243e75}
+.panel,.card{background:white;padding:16px;border-radius:10px;margin:12px 0;box-shadow:0 2px 7px #dce3ef}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+.hidden{display:none}
+.small{font-size:13px;color:#66758b}
+.status{font-weight:bold;color:#315db5}
+a{color:#2458a5}
+footer{text-align:center;background:#172c58;color:white;padding:15px;margin-top:20px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>📋 ComplainEase</h1>
+<p>Register. Track. Resolve.</p>
+</header>
+
+<nav>
+<button onclick="showPage('home')">Home</button>
+<button onclick="showPage('register')">User Register</button>
+<button onclick="showPage('login')">User Login</button>
+<button onclick="showPage('post')">Post Complaint</button>
+<button onclick="showPage('myComplaints')">My Complaints</button>
+<button onclick="showPage('feedback')">Feedback</button>
+<button onclick="showPage('officerLogin')">Officer</button>
+<button onclick="showPage('adminLogin')">Admin</button>
+<button onclick="showPage('contact')">Admin Contact</button>
+<button onclick="logout()">Logout</button>
+</nav>
+
+<main>
+<section id="home">
+<h2>Welcome to ComplainEase</h2>
+<p>Submit complaints, follow progress, and communicate with the resolution team.</p>
+<div class="grid">
+<div class="card"><h3>📝 Post Complaint</h3><p>Register an issue with details and location.</p></div>
+<div class="card"><h3>🔎 Track Complaint</h3><p>Check the latest complaint status.</p></div>
+<div class="card"><h3>👮 Officer Dashboard</h3><p>Review complaints and update resolution progress.</p></div>
+<div class="card"><h3>⚙️ Admin Dashboard</h3><p>Manage users, officers, and system settings.</p></div>
+</div>
+<h2>Common Issues and Solutions</h2>
+<div class="panel">
+<p><b>Road damage:</b> Report the road location and include a photograph.</p>
+<p><b>Water supply:</b> Provide the affected area and explain the issue.</p>
+<p><b>Street lights:</b> Mention the street or landmark where the light is not working.</p>
+<p><b>Garbage collection:</b> Include the affected location and date.</p>
+</div>
+</section>
+
+<section id="register" class="hidden">
+<h2>User Registration</h2>
+<div class="panel">
+<input id="regName" placeholder="Full Name">
+<input id="regEmail" type="email" placeholder="Email">
+<input id="regPassword" type="password" placeholder="Password">
+<input id="regPhone" placeholder="Phone Number">
+<button onclick="registerUser()">Register</button>
+<p id="regMessage"></p>
+</div>
+</section>
+
+<section id="login" class="hidden">
+<h2>User Login</h2>
+<div class="panel">
+<input id="loginEmail" type="email" placeholder="Email">
+<input id="loginPassword" type="password" placeholder="Password">
+<button onclick="loginUser()">Login</button>
+<p id="loginMessage"></p>
+</div>
+</section>
+
+<section id="post" class="hidden">
+<h2>Post a Complaint</h2>
+<div class="panel">
+<input id="complaintTitle" placeholder="Complaint Title">
+<select id="complaintCategory">
+<option>Road Damage</option>
+<option>Water Supply</option>
+<option>Electricity</option>
+<option>Street Lights</option>
+<option>Garbage Collection</option>
+<option>Public Safety</option>
+<option>Other</option>
+</select><br>
+<textarea id="complaintDescription" placeholder="Describe your complaint"></textarea><br>
+<input id="complaintLocation" placeholder="Location / Address">
+<input id="complaintProof" type="url" placeholder="Evidence image/document URL (optional)"><br>
+<button onclick="openMap()">Mark / View Location on Google Maps</button>
+<p id="mapResult"></p>
+<button onclick="postComplaint()">Submit Complaint</button>
+<p class="small">You must log in before submitting a complaint. Use a shareable evidence URL if needed.</p>
+</div>
+</section>
+
+<section id="myComplaints" class="hidden">
+<h2>My Complaints and Status</h2>
+<div id="userComplaintList"></div>
+</section>
+
+<section id="feedback" class="hidden">
+<h2>Complaint Feedback</h2>
+<div class="panel">
+<select id="feedbackComplaint"></select>
+<select id="feedbackRating">
+<option value="5">5 - Excellent</option>
+<option value="4">4 - Good</option>
+<option value="3">3 - Average</option>
+<option value="2">2 - Poor</option>
+<option value="1">1 - Very Poor</option>
+</select><br>
+<textarea id="feedbackText" placeholder="Write your feedback"></textarea><br>
+<button onclick="submitFeedback()">Submit Feedback</button>
+<p id="feedbackMessage"></p>
+</div>
+</section>
+
+<section id="contact" class="hidden">
+<h2>Admin Contact Details</h2>
+<div class="panel">
+<p><b>Department:</b> ComplainEase Complaint Support</p>
+<p><b>Email:</b> admin@complainease.demo</p>
+<p><b>Phone:</b> 1800-000-000 (demo number)</p>
+<p class="small">These are demonstration details. Replace them with the actual administrator's contact information.</p>
+</div>
+</section>
+
+<section id="officerLogin" class="hidden">
+<h2>Officer Login</h2>
+<div class="panel">
+<input id="officerID" placeholder="Officer ID">
+<input id="officerPassword" type="password" placeholder="Password">
+<button onclick="loginOfficer()">Login as Officer</button>
+<p id="officerMessage"></p>
+</div>
+</section>
+
+<section id="officerDashboard" class="hidden">
+<h2>Officer Dashboard</h2>
+<p id="officerWelcome"></p>
+<div id="officerComplaintList"></div>
+</section>
+
+<section id="adminLogin" class="hidden">
+<h2>Administrator Login</h2>
+<div class="panel">
+<input id="adminUsername" placeholder="Admin Username">
+<input id="adminPassword" type="password" placeholder="Password">
+<button onclick="loginAdmin()">Login as Admin</button>
+<p class="small">Demo credentials: admin / admin123</p>
+<p id="adminMessage"></p>
+</div>
+<div id="adminDashboard" class="hidden">
+<h2>Manage Officers</h2>
+<div class="panel">
+<input id="newOfficerName" placeholder="Officer Name">
+<input id="newOfficerID" placeholder="Officer ID">
+<input id="newOfficerPassword" type="password" placeholder="Officer Password">
+<button onclick="createOfficer()">Create Officer Account</button>
+</div>
+<div id="officerAccountList"></div>
+
+<h2>Manage User Accounts</h2>
+<div id="adminUserList"></div>
+
+<h2>All Complaints</h2>
+<div id="adminComplaintList"></div>
+
+<h2>Manage System Features</h2>
+<div class="panel">
+<label><input type="checkbox" id="featurePost" checked> Enable complaint posting</label><br>
+<label><input type="checkbox" id="featureFeedback" checked> Enable feedback</label><br>
+<label><input type="checkbox" id="featureContact" checked> Enable contact details</label><br>
+<button onclick="saveFeatures()">Save Feature Settings</button>
+</div>
+
+<h2>Update Admin Contact</h2>
+<div class="panel">
+<input id="adminEmailContact" type="email" placeholder="Admin Contact Email">
+<input id="adminPhoneContact" placeholder="Admin Contact Phone">
+<button onclick="saveContact()">Save Contact Details</button>
+</div>
+</div>
+</section>
+</main>
+
+<footer>
+<p>© 2026 ComplainEase | Online Complaint Management System</p>
+</footer>
+
+<script>
+function load(key,fallback){
+try{
+const value=localStorage.getItem(key);
+return value===null?fallback:JSON.parse(value);
+}catch(e){return fallback;}
+}
+function save(key,value){localStorage.setItem(key,JSON.stringify(value));}
+function esc(value){
+return String(value??"").replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+}
+
+let users=load("ceUsers",[]);
+let officers=load("ceOfficers",[]);
+let complaints=load("ceComplaints",[]);
+let feedbacks=load("ceFeedbacks",[]);
+let features=load("ceFeatures",{post:true,feedback:true,contact:true});
+let contacts=load("ceContacts",{email:"admin@complainease.demo",phone:"1800-000-000"});
+let currentUser=sessionStorage.getItem("ceUser")||"";
+let currentOfficer="";
+let isAdmin=false;
+
+function showPage(id){
+if(id==="post"&&!features.post){alert("Complaint posting is currently disabled.");return;}
+if(id==="feedback"&&!features.feedback){alert("Feedback is currently disabled.");return;}
+if(id==="contact"&&!features.contact){alert("Contact details are currently hidden.");return;}
+document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
+if(id==="myComplaints")renderUserComplaints();
+if(id==="feedback")fillFeedbackComplaints();
+if(id==="officerDashboard"){
+if(!currentOfficer){alert("Please log in as an officer.");showPage("officerLogin");return;}
+renderOfficerComplaints();
+}
+if(id==="adminLogin")renderAdmin();
+if(id==="contact")renderContact();
+}
+function registerUser(){
+const name=document.getElementById("regName").value.trim();
+const email=document.getElementById("regEmail").value.trim().toLowerCase();
+const password=document.getElementById("regPassword").value;
+const phone=document.getElementById("regPhone").value.trim();
+if(!name||!email||!password||!phone){alert("Fill in all fields.");return;}
+if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert("Enter a valid email.");return;}
+if(users.some(u=>u.email===email)){alert("Account already exists.");return;}
+users.push({name,email,password,phone,blocked:false});
+save("ceUsers",users);
+document.getElementById("regMessage").textContent="Registration successful. Please log in.";
+}
+function loginUser(){
+const email=document.getElementById("loginEmail").value.trim().toLowerCase();
+const password=document.getElementById("loginPassword").value;
+const user=users.find(u=>u.email===email&&u.password===password&&!u.blocked);
+if(!user){alert("Invalid login details or account blocked.");return;}
+currentUser=email;sessionStorage.setItem("ceUser",email);
+document.getElementById("loginMessage").textContent="Login successful!";
+showPage("post");
+}
+function openMap(){
+const location=document.getElementById("complaintLocation").value.trim();
+if(!location){alert("Enter a location or address first.");return;}
+const url="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(location);
+document.getElementById("mapResult").innerHTML=`<a href="${url}" target="_blank" rel="noopener">Open complaint location in Google Maps</a>`;
+}
+function postComplaint(){
+if(!currentUser){alert("Please log in first.");showPage("login");return;}
+const title=document.getElementById("complaintTitle").value.trim();
+const category=document.getElementById("complaintCategory").value;
+const description=document.getElementById("complaintDescription").value.trim();
+const location=document.getElementById("complaintLocation").value.trim();
+const proof=document.getElementById("complaintProof").value.trim();
+if(!title||!description||!location){alert("Enter title, description and location.");return;}
+if(proof&&!/^https?:\/\//i.test(proof)){alert("Evidence must be a valid HTTP or HTTPS URL.");return;}
+const complaint={
+id:"CE"+Date.now(),userEmail:currentUser,title,category,description,
+location,proof,status:"Submitted",officerID:"",workProof:"",
+created:new Date().toLocaleString(),updates:[]
+};
+complaints.push(complaint);save("ceComplaints",complaints);
+["complaintTitle","complaintDescription","complaintLocation","complaintProof"].forEach(id=>document.getElementById(id).value="");
+document.getElementById("mapResult").textContent="";
+alert("Complaint submitted successfully! ID: "+complaint.id);
+showPage("myComplaints");
+}
+function renderUserComplaints(){
+const list=complaints.filter(c=>c.userEmail===currentUser);
+document.getElementById("userComplaintList").innerHTML=list.length?list.slice().reverse().map(c=>
+`<div class="panel"><h3>${esc(c.title)}</h3>
+<p>Complaint ID: <b>${esc(c.id)}</b></p>
+<p>Category: ${esc(c.category)}</p><p>Description: ${esc(c.description)}</p>
+<p>Location: ${esc(c.location)}</p>
+<p>Status: <span class="status">${esc(c.status)}</span></p>
+${c.proof?`<p><a href="${esc(c.proof)}" target="_blank" rel="noopener">View Submitted Evidence</a></p>`:""}
+${c.workProof?`<p>Officer's Proof of Work: <a href="${esc(c.workProof)}" target="_blank" rel="noopener">View Proof</a></p>`:""}
+<p>Officer: ${esc(c.officerID||"Not assigned")}</p>
+<p class="small">Submitted: ${esc(c.created)}</p>
+${c.updates.map(u=>`<p class="small">${esc(u.date)}: ${esc(u.text)}</p>`).join("")}
+</div>`).join(""):"<p>No complaints submitted yet.</p>";
+}
+function fillFeedbackComplaints(){
+const list=complaints.filter(c=>c.userEmail===currentUser&&c.status==="Resolved");
+document.getElementById("feedbackComplaint").innerHTML=list.map(c=>
+`<option value="${esc(c.id)}">${esc(c.id)} - ${esc(c.title)}</option>`).join("")||'<option value="">No resolved complaints available</option>';
+}
+function submitFeedback(){
+if(!currentUser){alert("Please log in first.");showPage("login");return;}
+if(!features.feedback){alert("Feedback is disabled.");return;}
+const complaintID=document.getElementById("feedbackComplaint").value;
+const text=document.getElementById("feedbackText").value.trim();
+if(!complaintID||!text){alert("Select a resolved complaint and enter feedback.");return;}
+feedbacks.push({complaintID,userEmail:currentUser,rating:document.getElementById("feedbackRating").value,text,date:new Date().toLocaleString()});
+save("ceFeedbacks",feedbacks);
+document.getElementById("feedbackMessage").textContent="Feedback submitted successfully.";
+document.getElementById("feedbackText").value="";
+}
+function renderContact(){
+document.getElementById("contact").innerHTML=`<h2>Admin Contact Details</h2>
+<div class="panel"><p>Email: ${esc(contacts.email)}</p><p>Phone: ${esc(contacts.phone)}</p></div>`;
+}
+function loginOfficer(){
+const id=document.getElementById("officerID").value.trim();
+const password=document.getElementById("officerPassword").value;
+const o=officers.find(x=>x.id===id&&x.password===password&&!x.blocked);
+if(!o){alert("Invalid officer ID or password.");return;}
+currentOfficer=id;
+document.getElementById("officerMessage").textContent="Officer login successful.";
+showPage("officerDashboard");
+}
+function renderOfficerComplaints(){
+document.getElementById("officerWelcome").textContent="Logged in as Officer: "+currentOfficer;
+const list=complaints.filter(c=>!c.officerID||c.officerID===currentOfficer);
+document.getElementById("officerComplaintList").innerHTML=list.length?list.map(c=>
+`<div class="panel"><h3>${esc(c.title)}</h3><p>ID: ${esc(c.id)}</p>
+<p>Category: ${esc(c.category)} | Location: ${esc(c.location)}</p>
+<p>${esc(c.description)}</p><p>Status: ${esc(c.status)}</p>
+${c.proof?`<p><a href="${esc(c.proof)}" target="_blank" rel="noopener">User Evidence</a></p>`:""}
+<label>Status:</label>
+<select id="status_${c.id}">
+<option ${c.status==="Submitted"?"selected":""}>Submitted</option>
+<option ${c.status==="In Progress"?"selected":""}>In Progress</option>
+<option ${c.status==="Resolved"?"selected":""}>Resolved</option>
+<option ${c.status==="Rejected"?"selected":""}>Rejected</option>
+</select><br>
+<input id="proof_${c.id}" type="url" placeholder="Proof of work URL (optional)" value="${esc(c.workProof)}">
+<textarea id="note_${c.id}" placeholder="Resolution update / note"></textarea><br>
+<button onclick="updateComplaint('${c.id}')">Update Complaint</button></div>`
+).join(""):"<p>No complaints assigned or available.</p>";
+}
+function updateComplaint(id){
+const c=complaints.find(x=>x.id===id);
+if(!c||!currentOfficer)return;
+if(c.officerID&&c.officerID!==currentOfficer){alert("This complaint is assigned to another officer.");return;}
+const status=document.getElementById("status_"+id).value;
+const proof=document.getElementById("proof_"+id).value.trim();
+const note=document.getElementById("note_"+id).value.trim();
+if(proof&&!/^https?:\/\//i.test(proof)){alert("Enter a valid proof URL.");return;}
+c.officerID=currentOfficer;c.status=status;c.workProof=proof;
+if(note)c.updates.push({date:new Date().toLocaleString(),text:note});
+save("ceComplaints",complaints);
+alert("Complaint status updated successfully.");
+renderOfficerComplaints();
+}
+function loginAdmin(){
+if(document.getElementById("adminUsername").value==="admin"&&document.getElementById("adminPassword").value==="admin123"){
+isAdmin=true;
+document.getElementById("adminMessage").textContent="Admin login successful.";
+document.getElementById("adminDashboard").classList.remove("hidden");
+renderAdmin();
+}else alert("Invalid admin username or password.");
+}
+function createOfficer(){
+if(!isAdmin)return;
+const name=document.getElementById("newOfficerName").value.trim();
+const id=document.getElementById("newOfficerID").value.trim();
+const password=document.getElementById("newOfficerPassword").value;
+if(!name||!id||!password){alert("Enter officer name, ID and password.");return;}
+if(officers.some(o=>o.id===id)){alert("Officer ID already exists.");return;}
+officers.push({name,id,password,blocked:false});
+save("ceOfficers",officers);
+["newOfficerName","newOfficerID","newOfficerPassword"].forEach(x=>document.getElementById(x).value="");
+renderAdmin();
+}
+function deleteOfficer(id){
+if(!isAdmin)return;
+if(!confirm("Delete this officer account?"))return;
+officers=officers.filter(o=>o.id!==id);save("ceOfficers",officers);
+complaints.forEach(c=>{if(c.officerID===id)c.officerID="";});
+save("ceComplaints",complaints);renderAdmin();
+}
+function changeOfficerPassword(id){
+if(!isAdmin)return;
+const o=officers.find(x=>x.id===id);if(!o)return;
+const p=prompt("Enter new password for "+id+":");
+if(p===null||!p.trim())return;
+o.password=p.trim();save("ceOfficers",officers);alert("Officer password changed.");
+}
+function toggleOfficer(id,blocked){
+if(!isAdmin)return;
+const o=officers.find(x=>x.id===id);if(!o)return;
+o.blocked=blocked;save("ceOfficers",officers);renderAdmin();
+}
+function deleteUser(email){
+if(!isAdmin)return;
+if(!confirm("Delete this user account?"))return;
+users=users.filter(u=>u.email!==email);save("ceUsers",users);renderAdmin();
+}
+function toggleUser(email,blocked){
+if(!isAdmin)return;
+const u=users.find(x=>x.email===email);if(!u)return;
+u.blocked=blocked;save("ceUsers",users);renderAdmin();
+}
+function saveFeatures(){
+if(!isAdmin)return;
+features={
+post:document.getElementById("featurePost").checked,
+feedback:document.getElementById("featureFeedback").checked,
+contact:document.getElementById("featureContact").checked
+};
+save("ceFeatures",features);
+alert("Feature settings saved.");
+}
+function saveContact(){
+if(!isAdmin)return;
+const email=document.getElementById("adminEmailContact").value.trim();
+const phone=document.getElementById("adminPhoneContact").value.trim();
+if(!email||!phone){alert("Enter both email and phone.");return;}
+contacts={email,phone};save("ceContacts",contacts);
+alert("Admin contact details updated.");
+}
+function renderAdmin(){
+if(!isAdmin)return;
+document.getElementById("adminUserList").innerHTML=users.map(u=>
+`<div class="panel"><b>${esc(u.name)}</b> — ${esc(u.email)}
+<p>Phone: ${esc(u.phone)} | Status: ${u.blocked?"Blocked":"Active"}</p>
+<button onclick="toggleUser('${esc(u.email)}',${!u.blocked})">${u.blocked?"Unblock":"Block"} User</button>
+<button onclick="deleteUser('${esc(u.email)}')">Delete Account</button></div>`
+).join("")||"<p>No users registered.</p>";
+document.getElementById("officerAccountList").innerHTML=officers.map(o=>
+`<div class="panel"><b>${esc(o.name)}</b> — Officer ID: ${esc(o.id)}
+<p>Status: ${o.blocked?"Blocked":"Active"}</p>
+<button onclick="toggleOfficer('${esc(o.id)}',${!o.blocked})">${o.blocked?"Unblock":"Block"}</button>
+<button onclick="changeOfficerPassword('${esc(o.id)}')">Change Password</button>
+<button onclick="deleteOfficer('${esc(o.id)}')">Delete Officer</button></div>`
+).join("")||"<p>No officer accounts created.</p>";
+document.getElementById("adminComplaintList").innerHTML=complaints.slice().reverse().map(c=>
+`<div class="panel"><b>${esc(c.title)}</b> — ${esc(c.id)}
+<p>User: ${esc(c.userEmail)} | Category: ${esc(c.category)}</p>
+<p>Location: ${esc(c.location)} | Status: ${esc(c.status)}</p>
+<p>Assigned Officer: ${esc(c.officerID||"Unassigned")}</p>
+${c.proof?`<p><a href="${esc(c.proof)}" target="_blank" rel="noopener">User Evidence</a></p>`:""}
+${c.workProof?`<p><a href="${esc(c.workProof)}" target="_blank" rel="noopener">Officer Proof of Work</a></p>`:""}
+${c.updates.map(u=>`<p class="small">${esc(u.date)}: ${esc(u.text)}</p>`).join("")}</div>`
+).join("")||"<p>No complaints yet.</p>";
+document.getElementById("featurePost").checked=features.post;
+document.getElementById("featureFeedback").checked=features.feedback;
+document.getElementById("featureContact").checked=features.contact;
+document.getElementById("adminEmailContact").value=contacts.email;
+document.getElementById("adminPhoneContact").value=contacts.phone;
+}
+function logout(){
+currentUser="";currentOfficer="";isAdmin=false;
+sessionStorage.removeItem("ceUser");
+document.getElementById("adminDashboard").classList.add("hidden");
+alert("Logged out successfully.");
+showPage("home");
+}
+</script>
+</body>
+</html>

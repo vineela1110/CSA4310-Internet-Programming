@@ -1,0 +1,165 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vineela - Personal Web Page</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f6ff;
+            color: #333;
+        }
+
+        header {
+            background: #4a6cf7;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 35px;
+        }
+
+        header p {
+            font-size: 18px;
+        }
+
+        .container {
+            width: 80%;
+            margin: 30px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #4a6cf7;
+        }
+
+        ul {
+            line-height: 2;
+        }
+
+        button {
+            background: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #3451c7;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #4a6cf7;
+        }
+
+        footer {
+            text-align: center;
+            background: #222;
+            color: white;
+            padding: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Hi, I'm Vineela 👋</h1>
+        <p>Welcome to My Personal Web Page</p>
+    </header>
+
+    <div class="container">
+
+        <div class="card">
+            <h2>1. Name</h2>
+            <p>Vineela</p>
+        </div>
+
+        <div class="card">
+            <h2>2. Department</h2>
+            <p>Computer Science and Engineering (CSE)</p>
+        </div>
+
+        <div class="card">
+            <h2>3. Year</h2>
+            <p>4th Year</p>
+        </div>
+
+        <div class="card">
+            <h2>4. Courses</h2>
+            <ul>
+                <li>Web Development</li>
+                <li>Python Programming</li>
+                <li>Java Programming</li>
+                <li>Database Management</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>5. Hobbies</h2>
+            <ul>
+                <li>Listening to Music 🎵</li>
+                <li>Watching Movies 🎬</li>
+                <li>Travelling ✈️</li>
+                <li>Dancing 💃</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>6. Skills</h2>
+            <ul>
+                <li>HTML & CSS</li>
+                <li>JavaScript</li>
+                <li>Python</li>
+                <li>Java</li>
+                <li>Communication Skills</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>7. Goal</h2>
+            <p>
+                My goal is to become a successful software professional
+                and build a good career in the IT field.
+            </p>
+
+            <button onclick="showMessage()">Click Me</button>
+
+            <p id="message"></p>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>© 2026 Vineela | Personal Web Page</p>
+    </footer>
+
+    <script>
+        function showMessage() {
+            document.getElementById("message").innerHTML =
+                "Thank you for visiting Vineela's webpage! 😊";
+        }
+    </script>
+
+</body>
+</html>
+```

@@ -1,0 +1,862 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Finder - Real Estate</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f7f5;
+    color: #26332e;
+}
+
+header {
+    background: #145c4a;
+    color: white;
+    text-align: center;
+    padding: 22px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 34px;
+}
+
+nav {
+    background: #103f35;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+}
+
+button {
+    background: #218c70;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    margin: 3px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #145c4a;
+}
+
+nav button {
+    background: white;
+    color: #145c4a;
+}
+
+.container {
+    max-width: 1150px;
+    margin: auto;
+    padding: 20px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0;
+    border: 1px solid #cbd5d0;
+    border-radius: 5px;
+}
+
+.search-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.properties {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+}
+
+.card {
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px #d9e3de;
+}
+
+.property-image {
+    background: #dcece5;
+    min-height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    border-radius: 8px;
+}
+
+.price {
+    font-size: 21px;
+    font-weight: bold;
+    color: #145c4a;
+}
+
+section {
+    margin-bottom: 25px;
+}
+
+.hidden {
+    display: none;
+}
+
+.item {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+    box-shadow: 0 1px 5px #d9e3de;
+}
+
+#message {
+    color: #145c4a;
+    font-weight: bold;
+}
+
+footer {
+    background: #103f35;
+    color: white;
+    text-align: center;
+    padding: 15px;
+}
+
+a {
+    color: #145c4a;
+}
+
+@media(max-width: 600px) {
+    .container {
+        padding: 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Home Finder</h1>
+    <p>Find Your Dream Home, Land, or Commercial Property</p>
+</header>
+
+<nav>
+    <button onclick="showPage('home')">Home</button>
+    <button onclick="showPage('login')">Buyer Login</button>
+    <button onclick="showPage('favorites')">Favorites</button>
+    <button onclick="showPage('appointments')">Viewings</button>
+    <button onclick="showPage('agents')">Find Agents</button>
+    <button onclick="showPage('admin')">Admin</button>
+    <button onclick="logout()">Logout</button>
+</nav>
+
+<div class="container">
+
+<p id="message"></p>
+
+<!-- HOME AND SEARCH -->
+<section id="home">
+    <h2>Search Properties</h2>
+    <p>Find houses, apartments, land, and commercial spaces in your budget.</p>
+
+    <div class="search-grid">
+        <div>
+            <label>Location</label>
+            <input id="location" placeholder="Enter city or area">
+        </div>
+
+        <div>
+            <label>Property Type</label>
+            <select id="type">
+                <option value="All">All Types</option>
+                <option>House</option>
+                <option>Apartment</option>
+                <option>Land</option>
+                <option>Commercial</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Minimum Budget (₹)</label>
+            <input id="minPrice" type="number" min="0" placeholder="Minimum price">
+        </div>
+
+        <div>
+            <label>Maximum Budget (₹)</label>
+            <input id="maxPrice" type="number" min="0" placeholder="Maximum price">
+        </div>
+
+        <div>
+            <label>Purpose</label>
+            <select id="purpose">
+                <option value="All">Buy or Rent</option>
+                <option>Buy</option>
+                <option>Rent</option>
+            </select>
+        </div>
+    </div>
+
+    <button onclick="searchProperties()">Search Properties</button>
+    <button onclick="saveSearch()">Save Search Criteria</button>
+    <button onclick="loadSearch()">Load Saved Search</button>
+
+    <h3>Available Properties</h3>
+    <div id="propertyList" class="properties"></div>
+
+    <h3>Property Advertisements</h3>
+    <div class="card">
+        <p>Explore more real estate listings and property information.</p>
+        <a href="https://www.magicbricks.com/" target="_blank" rel="noopener">
+            Visit MagicBricks
+        </a>
+        <br><br>
+        <a href="https://housing.com/" target="_blank" rel="noopener">
+            Visit Housing.com
+        </a>
+    </div>
+</section>
+
+<!-- BUYER LOGIN -->
+<section id="login" class="hidden">
+    <h2>Buyer Registration / Login</h2>
+    <input id="buyerName" placeholder="Enter your name">
+    <input id="buyerEmail" type="email" placeholder="Enter email">
+    <input id="buyerPassword" type="password" placeholder="Enter password">
+    <button onclick="buyerLogin()">Register / Login</button>
+    <p id="buyerInfo"></p>
+</section>
+
+<!-- FAVORITES -->
+<section id="favorites" class="hidden">
+    <h2>Favorite Properties</h2>
+    <div id="favoriteList" class="properties"></div>
+</section>
+
+<!-- VIEWING APPOINTMENTS -->
+<section id="appointments" class="hidden">
+    <h2>Schedule Property Viewing</h2>
+    <div id="appointmentProperties"></div>
+
+    <h3>My Appointments</h3>
+    <div id="appointmentList"></div>
+</section>
+
+<!-- AGENTS -->
+<section id="agents" class="hidden">
+    <h2>Find Real Estate Agents</h2>
+    <input id="agentSearch" placeholder="Search by agent or company"
+           oninput="displayAgents()">
+    <div id="agentList" class="properties"></div>
+</section>
+
+<!-- ADMIN -->
+<section id="admin" class="hidden">
+    <h2>Administrator Login</h2>
+    <p>Demo username: admin | Password: admin123</p>
+    <input id="adminUsername" placeholder="Admin username">
+    <input id="adminPassword" type="password" placeholder="Admin password">
+    <button onclick="adminLogin()">Admin Login</button>
+
+    <div id="adminPanel" class="hidden">
+        <h3>Add a Property</h3>
+        <input id="newTitle" placeholder="Property title">
+        <input id="newLocation" placeholder="Property location">
+
+        <select id="newType">
+            <option>House</option>
+            <option>Apartment</option>
+            <option>Land</option>
+            <option>Commercial</option>
+        </select>
+
+        <input id="newPrice" type="number" min="1" placeholder="Price in ₹">
+
+        <select id="newPurpose">
+            <option>Buy</option>
+            <option>Rent</option>
+        </select>
+
+        <input id="newBedrooms" type="number" min="0"
+               placeholder="Bedrooms (if applicable)">
+        <textarea id="newDescription" placeholder="Property description"></textarea>
+        <input id="newAgent" placeholder="Agent or company name">
+
+        <button onclick="addProperty()">Add Property</button>
+
+        <h3>Manage Properties</h3>
+        <div id="adminProperties"></div>
+
+        <h3>Website Visitor Records</h3>
+        <div id="visitorList"></div>
+
+        <h3>Buyer Viewing Requests</h3>
+        <div id="adminAppointments"></div>
+    </div>
+</section>
+
+</div>
+
+<footer>
+    <p>© 2026 Home Finder | Find a place to call home</p>
+</footer>
+
+<script>
+// Demo property catalogue
+let properties = JSON.parse(localStorage.getItem("hfProperties")) || [
+    {
+        id: 1,
+        title: "Family Independent House",
+        location: "Hyderabad",
+        type: "House",
+        price: 6500000,
+        purpose: "Buy",
+        bedrooms: 3,
+        description: "Spacious family house near schools and shopping areas.",
+        agent: "Green Homes Realty"
+    },
+    {
+        id: 2,
+        title: "Modern City Apartment",
+        location: "Chennai",
+        type: "Apartment",
+        price: 25000,
+        purpose: "Rent",
+        bedrooms: 2,
+        description: "Furnished apartment with parking and security.",
+        agent: "City Property Agents"
+    },
+    {
+        id: 3,
+        title: "Residential Land",
+        location: "Vijayawada",
+        type: "Land",
+        price: 1800000,
+        purpose: "Buy",
+        bedrooms: 0,
+        description: "Residential plot suitable for building a home.",
+        agent: "Green Homes Realty"
+    },
+    {
+        id: 4,
+        title: "Commercial Office Space",
+        location: "Bengaluru",
+        type: "Commercial",
+        price: 45000,
+        purpose: "Rent",
+        bedrooms: 0,
+        description: "Office space suitable for small businesses.",
+        agent: "Business Property Group"
+    }
+];
+
+let buyers = JSON.parse(localStorage.getItem("hfBuyers")) || [];
+let favorites = JSON.parse(localStorage.getItem("hfFavorites")) || [];
+let appointments = JSON.parse(localStorage.getItem("hfAppointments")) || [];
+let visitors = JSON.parse(localStorage.getItem("hfVisitors")) || [];
+let currentBuyer = JSON.parse(sessionStorage.getItem("hfBuyer")) || null;
+let isAdmin = false;
+
+// Save all records in the browser
+function saveData() {
+    localStorage.setItem("hfProperties", JSON.stringify(properties));
+    localStorage.setItem("hfBuyers", JSON.stringify(buyers));
+    localStorage.setItem("hfFavorites", JSON.stringify(favorites));
+    localStorage.setItem("hfAppointments", JSON.stringify(appointments));
+    localStorage.setItem("hfVisitors", JSON.stringify(visitors));
+}
+
+function showMessage(text) {
+    document.getElementById("message").textContent = text;
+}
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;",
+        '"': "&quot;", "'": "&#39;"
+    })[c]);
+}
+
+function showPage(page) {
+    document.querySelectorAll(".container > section").forEach(s => {
+        s.classList.add("hidden");
+    });
+
+    document.getElementById(page).classList.remove("hidden");
+    showMessage("");
+
+    if (page === "home") displayProperties();
+    if (page === "favorites") displayFavorites();
+    if (page === "appointments") displayAppointments();
+    if (page === "agents") displayAgents();
+    if (page === "admin" && isAdmin) displayAdmin();
+}
+
+// Search by location, type, budget, and purpose
+function searchProperties() {
+    const criteria = {
+        location: document.getElementById("location").value.trim(),
+        type: document.getElementById("type").value,
+        minPrice: document.getElementById("minPrice").value,
+        maxPrice: document.getElementById("maxPrice").value,
+        purpose: document.getElementById("purpose").value
+    };
+
+    if (criteria.minPrice && criteria.maxPrice &&
+        Number(criteria.minPrice) > Number(criteria.maxPrice)) {
+        showMessage("Minimum budget cannot exceed maximum budget.");
+        return;
+    }
+
+    const result = properties.filter(p =>
+        (!criteria.location ||
+            p.location.toLowerCase().includes(criteria.location.toLowerCase())) &&
+        (criteria.type === "All" || p.type === criteria.type) &&
+        (!criteria.minPrice || p.price >= Number(criteria.minPrice)) &&
+        (!criteria.maxPrice || p.price <= Number(criteria.maxPrice)) &&
+        (criteria.purpose === "All" || p.purpose === criteria.purpose)
+    );
+
+    displayPropertyCards(result);
+    showMessage(result.length + " matching properties found.");
+}
+
+function displayProperties() {
+    displayPropertyCards(properties);
+}
+
+function displayPropertyCards(list) {
+    document.getElementById("propertyList").innerHTML = list.length
+        ? list.map(p => `
+            <div class="card">
+                <div class="property-image">🏡</div>
+                <h3>${escapeHTML(p.title)}</h3>
+                <p>Location: ${escapeHTML(p.location)}</p>
+                <p>Type: ${escapeHTML(p.type)} | ${escapeHTML(p.purpose)}</p>
+                <p>${escapeHTML(p.description)}</p>
+                <p>${p.bedrooms ? "Bedrooms: " + p.bedrooms : ""}</p>
+                <p class="price">₹${Number(p.price).toLocaleString("en-IN")}
+                    ${p.purpose === "Rent" ? "/ month" : ""}
+                </p>
+                <p>Agent: ${escapeHTML(p.agent)}</p>
+                <button onclick="addFavorite(${p.id})">♡ Favorite</button>
+                <button onclick="scheduleViewing(${p.id})">Schedule Viewing</button>
+                <button onclick="openMap('${encodeURIComponent(p.location)}')">
+                    View on Map
+                </button>
+            </div>
+        `).join("")
+        : "<p>No properties match your search.</p>";
+}
+
+// Save and reuse buyer search criteria
+function saveSearch() {
+    if (!currentBuyer) {
+        showMessage("Please log in as a buyer to save your search.");
+        return;
+    }
+
+    const criteria = {
+        location: document.getElementById("location").value,
+        type: document.getElementById("type").value,
+        minPrice: document.getElementById("minPrice").value,
+        maxPrice: document.getElementById("maxPrice").value,
+        purpose: document.getElementById("purpose").value
+    };
+
+    const buyer = buyers.find(b => b.email === currentBuyer.email);
+    buyer.savedSearch = criteria;
+
+    saveData();
+    showMessage("Search criteria saved successfully.");
+}
+
+function loadSearch() {
+    if (!currentBuyer) {
+        showMessage("Please log in to load your saved search.");
+        return;
+    }
+
+    const buyer = buyers.find(b => b.email === currentBuyer.email);
+
+    if (!buyer || !buyer.savedSearch) {
+        showMessage("No saved search found.");
+        return;
+    }
+
+    document.getElementById("location").value = buyer.savedSearch.location;
+    document.getElementById("type").value = buyer.savedSearch.type;
+    document.getElementById("minPrice").value = buyer.savedSearch.minPrice;
+    document.getElementById("maxPrice").value = buyer.savedSearch.maxPrice;
+    document.getElementById("purpose").value = buyer.savedSearch.purpose;
+
+    searchProperties();
+}
+
+// Buyer registration and login demo
+function buyerLogin() {
+    const name = document.getElementById("buyerName").value.trim();
+    const email = document.getElementById("buyerEmail").value.trim();
+    const password = document.getElementById("buyerPassword").value;
+
+    if (!name || !email.includes("@") || !password) {
+        showMessage("Enter a valid name, email, and password.");
+        return;
+    }
+
+    let buyer = buyers.find(b => b.email === email);
+
+    if (buyer && buyer.password !== password) {
+        showMessage("Incorrect password.");
+        return;
+    }
+
+    if (!buyer) {
+        buyer = {name, email, password, savedSearch: null};
+        buyers.push(buyer);
+    }
+
+    currentBuyer = {name: buyer.name, email: buyer.email};
+    sessionStorage.setItem("hfBuyer", JSON.stringify(currentBuyer));
+
+    // Record website visit
+    visitors.push({
+        name: buyer.name,
+        email: buyer.email,
+        time: new Date().toLocaleString()
+    });
+
+    saveData();
+
+    document.getElementById("buyerInfo").textContent =
+        "Welcome, " + currentBuyer.name;
+
+    showMessage("Buyer login successful.");
+}
+
+// Favorites
+function addFavorite(id) {
+    if (!currentBuyer) {
+        showMessage("Please log in to save favorite properties.");
+        return;
+    }
+
+    const exists = favorites.some(f =>
+        f.id === id && f.email === currentBuyer.email
+    );
+
+    if (!exists) {
+        favorites.push({id, email: currentBuyer.email});
+        saveData();
+        showMessage("Property added to favorites.");
+    } else {
+        showMessage("Property is already in your favorites.");
+    }
+}
+
+function displayFavorites() {
+    const list = currentBuyer
+        ? favorites.filter(f => f.email === currentBuyer.email)
+            .map(f => properties.find(p => p.id === f.id))
+            .filter(Boolean)
+        : [];
+
+    document.getElementById("favoriteList").innerHTML = list.length
+        ? list.map(p => `
+            <div class="card">
+                <h3>${escapeHTML(p.title)}</h3>
+                <p>${escapeHTML(p.location)}</p>
+                <p>₹${Number(p.price).toLocaleString("en-IN")}</p>
+                <button onclick="removeFavorite(${p.id})">Remove Favorite</button>
+                <button onclick="openMap('${encodeURIComponent(p.location)}')">
+                    View on Map
+                </button>
+            </div>
+        `).join("")
+        : "<p>Log in and add properties to view your favorites.</p>";
+}
+
+function removeFavorite(id) {
+    if (!currentBuyer) return;
+
+    favorites = favorites.filter(f =>
+        !(f.id === id && f.email === currentBuyer.email)
+    );
+
+    saveData();
+    displayFavorites();
+}
+
+// Viewing appointments
+function scheduleViewing(id) {
+    if (!currentBuyer) {
+        showMessage("Please log in before scheduling a viewing.");
+        showPage("login");
+        return;
+    }
+
+    const property = properties.find(p => p.id === id);
+    if (!property) return;
+
+    const date = prompt("Enter viewing date (YYYY-MM-DD):");
+    if (!date) return;
+
+    const chosenDate = new Date(date + "T00:00:00");
+
+    if (isNaN(chosenDate.getTime()) ||
+        chosenDate.toISOString().slice(0, 10) !== date ||
+        date < new Date().toISOString().slice(0, 10)) {
+        showMessage("Enter a valid date that is today or later.");
+        return;
+    }
+
+    appointments.push({
+        id: Date.now(),
+        propertyId: id,
+        propertyTitle: property.title,
+        buyer: currentBuyer.name,
+        email: currentBuyer.email,
+        date,
+        status: "Requested"
+    });
+
+    saveData();
+    showMessage("Property viewing request submitted.");
+}
+
+function displayAppointments() {
+    const ownAppointments = currentBuyer
+        ? appointments.filter(a => a.email === currentBuyer.email)
+        : [];
+
+    document.getElementById("appointmentProperties").innerHTML =
+        "<p>Select Schedule Viewing on a property card on the Home page.</p>";
+
+    document.getElementById("appointmentList").innerHTML =
+        ownAppointments.length
+        ? ownAppointments.map(a => `
+            <div class="item">
+                <h3>${escapeHTML(a.propertyTitle)}</h3>
+                <p>Date: ${escapeHTML(a.date)}</p>
+                <p>Status: ${escapeHTML(a.status)}</p>
+            </div>
+        `).join("")
+        : "<p>No viewing requests yet.</p>";
+}
+
+// Google Maps search links
+function openMap(location) {
+    window.open(
+        "https://www.google.com/maps/search/?api=1&query=" + location,
+        "_blank",
+        "noopener"
+    );
+}
+
+// Agent/company search
+function displayAgents() {
+    const search = document.getElementById("agentSearch").value.toLowerCase();
+
+    const agents = [...new Set(properties.map(p => p.agent))]
+        .filter(agent => agent.toLowerCase().includes(search));
+
+    document.getElementById("agentList").innerHTML = agents.length
+        ? agents.map(agent => `
+            <div class="card">
+                <h3>${escapeHTML(agent)}</h3>
+                <p>Real Estate Agent / Company</p>
+                <p>Listed properties: ${
+                    properties.filter(p => p.agent === agent).length
+                }</p>
+                <button onclick="showAgentProperties('${encodeURIComponent(agent)}')">
+                    View Listings
+                </button>
+            </div>
+        `).join("")
+        : "<p>No matching agents or companies found.</p>";
+}
+
+function showAgentProperties(encodedAgent) {
+    const agent = decodeURIComponent(encodedAgent);
+    const list = properties.filter(p => p.agent === agent);
+
+    showPage("home");
+    displayPropertyCards(list);
+}
+
+// Admin functions
+function adminLogin() {
+    if (document.getElementById("adminUsername").value === "admin" &&
+        document.getElementById("adminPassword").value === "admin123") {
+        isAdmin = true;
+        document.getElementById("adminPanel").classList.remove("hidden");
+        displayAdmin();
+        showMessage("Admin login successful.");
+    } else {
+        showMessage("Invalid admin username or password.");
+    }
+}
+
+function addProperty() {
+    if (!isAdmin) return;
+
+    const title = document.getElementById("newTitle").value.trim();
+    const location = document.getElementById("newLocation").value.trim();
+    const type = document.getElementById("newType").value;
+    const price = Number(document.getElementById("newPrice").value);
+    const purpose = document.getElementById("newPurpose").value;
+    const bedrooms = Number(document.getElementById("newBedrooms").value || 0);
+    const description =
+        document.getElementById("newDescription").value.trim();
+    const agent = document.getElementById("newAgent").value.trim();
+
+    if (!title || !location || !description || !agent ||
+        !Number.isFinite(price) || price <= 0 ||
+        !Number.isInteger(bedrooms) || bedrooms < 0) {
+        showMessage("Please enter valid property details.");
+        return;
+    }
+
+    properties.push({
+        id: Date.now(), title, location, type, price,
+        purpose, bedrooms, description, agent
+    });
+
+    saveData();
+    displayAdmin();
+    displayProperties();
+    showMessage("Property added successfully.");
+
+    ["newTitle", "newLocation", "newPrice", "newBedrooms",
+     "newDescription", "newAgent"].forEach(id => {
+        document.getElementById(id).value = "";
+    });
+}
+
+function displayAdmin() {
+    document.getElementById("adminProperties").innerHTML =
+        properties.map(p => `
+            <div class="item">
+                <b>${escapeHTML(p.title)}</b>
+                <p>${escapeHTML(p.location)} | ${escapeHTML(p.type)}</p>
+                <p>Price: ₹${Number(p.price).toLocaleString("en-IN")}</p>
+                <button onclick="editPropertyPrice(${p.id})">Edit Price</button>
+                <button onclick="deleteProperty(${p.id})">Delete Property</button>
+            </div>
+        `).join("");
+
+    document.getElementById("visitorList").innerHTML = visitors.length
+        ? visitors.map(v => `
+            <div class="item">
+                <p>Name: ${escapeHTML(v.name)}</p>
+                <p>Email: ${escapeHTML(v.email)}</p>
+                <p>Visit: ${escapeHTML(v.time)}</p>
+            </div>
+        `).join("")
+        : "<p>No recorded buyer logins yet.</p>";
+
+    document.getElementById("adminAppointments").innerHTML =
+        appointments.length
+        ? appointments.map(a => `
+            <div class="item">
+                <p>Buyer: ${escapeHTML(a.buyer)} (${escapeHTML(a.email)})</p>
+                <p>Property: ${escapeHTML(a.propertyTitle)}</p>
+                <p>Date: ${escapeHTML(a.date)}</p>
+                <p>Status: ${escapeHTML(a.status)}</p>
+                <select id="appointment${a.id}">
+                    <option>Requested</option>
+                    <option>Confirmed</option>
+                    <option>Completed</option>
+                    <option>Cancelled</option>
+                </select>
+                <button onclick="updateAppointment(${a.id})">Update</button>
+            </div>
+        `).join("")
+        : "<p>No viewing requests yet.</p>";
+}
+
+function editPropertyPrice(id) {
+    if (!isAdmin) return;
+
+    const property = properties.find(p => p.id === id);
+    const value = prompt("Enter new property price:", property.price);
+
+    if (value === null) return;
+
+    const price = Number(value);
+    if (!Number.isFinite(price) || price <= 0) {
+        showMessage("Enter a valid price.");
+        return;
+    }
+
+    property.price = price;
+    saveData();
+    displayAdmin();
+    displayProperties();
+    showMessage("Property price updated.");
+}
+
+function deleteProperty(id) {
+    if (!isAdmin || !confirm("Delete this property?")) return;
+
+    properties = properties.filter(p => p.id !== id);
+    favorites = favorites.filter(f => f.id !== id);
+    appointments = appointments.filter(a => a.propertyId !== id);
+
+    saveData();
+    displayAdmin();
+    displayProperties();
+    showMessage("Property deleted successfully.");
+}
+
+function updateAppointment(id) {
+    if (!isAdmin) return;
+
+    const appointment = appointments.find(a => a.id === id);
+    if (!appointment) return;
+
+    appointment.status = document.getElementById("appointment" + id).value;
+    saveData();
+    displayAdmin();
+    displayAppointments();
+    showMessage("Viewing appointment updated.");
+}
+
+function logout() {
+    currentBuyer = null;
+    isAdmin = false;
+    sessionStorage.removeItem("hfBuyer");
+
+    document.getElementById("adminPanel").classList.add("hidden");
+    document.getElementById("buyerInfo").textContent = "";
+
+    showMessage("Logged out successfully.");
+    showPage("home");
+}
+
+// Record a visit to the website
+visitors.push({
+    name: currentBuyer ? currentBuyer.name : "Guest",
+    email: currentBuyer ? currentBuyer.email : "Not logged in",
+    time: new Date().toLocaleString()
+});
+saveData();
+
+displayProperties();
+</script>
+
+</body>
+</html>
